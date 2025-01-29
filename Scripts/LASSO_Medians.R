@@ -8,6 +8,7 @@ rm(list=ls());graphics.off()
 
 current_path <- rstudioapi::getActiveDocumentContext()$path
 setwd(dirname(current_path))
+setwd("./..")
 getwd()
 
 # Functions ---------------------------------------------------------------
@@ -22,6 +23,7 @@ all_data = read.csv("./Data/EC_Sediment_SpC_pH_Temp_Respiration.csv", skip = 2) 
   filter(grepl("EC", Sample_Name)) %>% 
   filter(!grepl("EC_011|EC_012|EC_023|EC_052|EC_053|EC_057", Sample_Name)) %>%  # remove samples with too much water (EC_011, EC_012), sample with no mg/kg (EC_023), duplicated NEON sites (EC_052, EC_053, EC_057)
   select(-c(Field_Name, IGSN, Material))
+
 
 # Take Cube root of all respiration rates
 cube_respiration = all_data %>% 
@@ -54,6 +56,21 @@ median_respiration = all_data %>%
   mutate(Remove = ifelse(all(c_across(starts_with("n_")) == 10), "FALSE", "TRUE")) %>% ## Check CV's, then remove 
   select(c(Sample_ID, Median_SpC_microsiemens_per_cm, Median_pH, Median_Temperature_degC, Median_Respiration_Rate_mg_DO_per_L_per_H, Median_Respiration_Rate_mg_DO_per_kg_per_H)) %>% 
   ungroup()
+
+
+median_dry = all_data %>%
+  mutate(Respiration_Rate_mg_DO_per_L_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_L_per_H)) %>% 
+  #missing replicates (EC_072-W5/D5),  overexposed samples (EC_027, EC_013, EC_014), less sediment in sample (EC_012-D5)
+  mutate(Respiration_Rate_mg_DO_per_kg_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_kg_per_H)) %>%
+  filter(grepl("D", Sample_Name)) %>% 
+  summarize(median_Respiration_Rate_mg_DO_per_kg_per_H = median(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H), na.rm = T))
+
+median_wet = all_data %>%
+  mutate(Respiration_Rate_mg_DO_per_L_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_L_per_H)) %>% 
+  #missing replicates (EC_072-W5/D5),  overexposed samples (EC_027, EC_013, EC_014), less sediment in sample (EC_012-D5)
+  mutate(Respiration_Rate_mg_DO_per_kg_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_kg_per_H)) %>%
+  filter(grepl("W", Sample_Name)) %>% 
+  summarize(median_Respiration_Rate_mg_DO_per_kg_per_H = median(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H), na.rm = T))
 
 ## Calculate "bulk" medians ####
 
