@@ -622,6 +622,11 @@ ds_lasso_df = lasso_coef_means %>%
   rename(Coefficients = mean) %>% 
   mutate(y = "LASSO")
 
+norm_lasso_df = mean_coeffs_df = mean_coeffs_df %>% 
+  select(c(variable, mean)) %>% 
+  rename(Coefficients = mean) %>% 
+  mutate(y = "LASSO")
+
 ### Make Figures ---------------------------
 
 # Scatter Plots #### 
@@ -701,7 +706,7 @@ fe = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_
 ## Combine LASSO and Pearson Coefficients into Heat Map ####
 
 # Update names for figure
-lasso_pear_df = bind_rows(ds_lasso_df, corr_effect_df) %>% 
+lasso_pear_df = bind_rows(norm_lasso_df, corr_effect_df) %>% 
   rename(type = y) %>% 
   filter(!grepl("Silt", variable)) %>% 
   mutate(variable = ifelse(variable == "cube_Effect_Size_SpC_microsiemens_per_cm", "Effect Size Specific Conductivity (\u03BCS cm\u207b\u00b9)", ifelse(variable == "cube_Effect_Size_pH", "Effect Size pH", ifelse(variable == "cube_Effect_Size_Temperature_degC", " Effect Size Temperature (\u00B0C)",  ifelse(variable == "cube_Effect_Size_Fe_mg_per_kg", "Effect Size Fe (II) (mg kg\u207b\u00b9)", ifelse(variable == "cube_Effect_Size_ATP_picomoles_per_g", "Effect Size ATP (pmol g\u207b\u00b9)", ifelse(variable == "cube_Effect_Size_Extractable_NPOC_mg_per_kg", "Effect Size Extractable NPOC (mg kg\u207b\u00b9)", ifelse(variable == "cube_Effect_Size_Extractable_TN_mg_per_kg", "Effect Size Extractable TN (mg kg\u207b\u00b9)", ifelse(variable == "cube_Effect_Size_C_percent_per_mg", "Effect Size TOC (%)", ifelse(variable == "cube_Effect_Size_N_percent_per_mg", "Effect Size TN (%)", ifelse(variable == "cube_Percent_Tot_Sand", "Total Sand (%)", ifelse(variable == "cube_Percent_Med_Sand", "Medium Sand (%)", ifelse(variable == "cube_Percent_Fine_Sand", "Fine Sand (%)", ifelse(variable == "cube_Median_SpC_microsiemens_per_cm", "Median Specific Conductivity (\u03BCS cm\u207b\u00b9)", ifelse(variable == "cube_Median_pH", "Median pH", ifelse(variable == "cube_Median_Temperature_degC", "Median Temperature (\u00B0C)", ifelse(variable == "cube_Median_ATP_picomoles_per_g", "Median ATP (pmol g\u207b\u00b9)",  ifelse(variable == "cube_Median_Fe_mg_per_kg", "Median Fe (II) (mg kg\u207b\u00b9)", ifelse(variable == "cube_Median_X01395_C_percent_per_mg", "Median TOC (%)",   ifelse(variable ==  "cube_Median_X01397_N_percent_per_mg", "Median TN (%)", ifelse(variable == "cube_Median_Extractable_NPOC_mg_per_kg", "Median Extractable NPOC (mg kg\u207b\u00b9)", ifelse(variable == "cube_Median_Extractable_TN_mg_per_kg", "Median Extractable TN (mg kg\u207b\u00b9)", ifelse(variable == "cube_median_Dry_Initial_Gravimetric", "Median Initial Dry Gravimetric Moisture (g g\u207b\u00b9)", ifelse(variable == "cube_Percent_Coarse_Sand", "Coarse Sand (%)", ifelse(variable == "cube_Percent_Clay", "Clay (%)", ifelse(variable == "cube_Mean_Specific_Surface_Area_m2_per_g", "Specific Surface Area (m\u00B2 g\u207b\u00b9)", ifelse(variable == "cube_median_Dry_Final_Gravimetric", "Median Final Dry Gravimetric Moisture (g g\u207b\u00b9)",
@@ -753,7 +758,7 @@ combined_matrix = ggplot() +
  
 combined_matrix
  
-ggsave("./Physical_Manuscript_Figures/Combined_Pearson_Lasso_Matrix.png", plot = combined_matrix, width = 9, height = 4)
+ggsave("./Figures/Combined_Pearson_Lasso_Matrix.png", plot = combined_matrix, width = 9, height = 4)
 
 # Merge Matrices + Scatter Plots ####
 
@@ -765,16 +770,16 @@ col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effe
 
 col_scatter_ann
 
-ggsave("./Physical_Manuscript_Figures/Scatter_Plots.png", plot = col_scatter_ann, width = 9, height = 6)
+ggsave("./Figures/Scatter_Plots.png", plot = col_scatter_ann, width = 9, height = 6)
 
 
 ## Make sure to push figures - it was easier to combine/scale with saved figures. You will pull them back in and combine here
 
-combine_hm_image = image_read("C:/GitHub/ECA_Multireactor_Incubations/Physical_Manuscript_Figures/Combined_Pearson_Lasso_Matrix.png")
+combine_hm_image = image_read("C:/GitHub/ECA_Physical_Manuscript/Figures/Combined_Pearson_Lasso_Matrix.png")
 
 combine_label_image = image_annotate(combine_hm_image, "A", size = 100, location = "+25+25", color = "black")
 
-scatter_plot = image_read("C:/GitHub/ECA_Multireactor_Incubations/Physical_Manuscript_Figures/Scatter_Plots.png")
+scatter_plot = image_read("C:/GitHub/ECA_Physical_Manuscript/Figures/Scatter_Plots.png")
 
 scatter_scale = image_scale(scatter_plot, "100%")
 
@@ -791,7 +796,7 @@ scatter_scale_padded <- image_extent(
 
 whole_image = image_append(c(combine_label_image, scatter_scale_padded), stack = TRUE)
 
-image_write(whole_image, path = "./Physical_Manuscript_Figures/Scatter_Heat_Map.png")
+image_write(whole_image, path = "./Figures/Scatter_Heat_Map.png")
 
 ## Conceptual Model ####
 
@@ -806,13 +811,15 @@ d50_plot = effect_d50 %>%
   ggplot(aes(x = round(d50, 2), y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) + 
    geom_bar(width = 0.005, stat = "identity", aes(fill = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +
   scale_fill_gradient2(name = "Effect Size", limits = c(-1400, 1400), low = "firebrick2", mid = "goldenrod2",
-                             high = "dodgerblue2", midpoint = (max(1400)+min(-1400))/2) +
+                             high = "dodgerblue2", midpoint = (max(1400)+min(-1400))/2,
+                       #guide = guide_legend(theme = theme(legend.direction = "horizontal", legend.text.position = "bottom"))
+                       ) +
    geom_vline(xintercept = 0.053, linetype = 2) + 
    geom_vline(xintercept = 0.25, linetype = 2)+
   ylab("Effect Size Respiration (mg/kg)") +
   xlab("D50") +
    theme_bw() + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 fine_sand = effect_d50 %>% 
   rename(Sample = Sample_Name) %>% 
@@ -922,24 +929,37 @@ atp_cat = ggplot(effect_analysis, aes(x = category, y = Median_ATP_picomoles_per
 ## Final Conceptual Figure?? ####
 d50_plot = d50_plot +
   ylab(expression("Effect Size Respiration (mg kg"^-1*")")) +
-  theme(axis.title.y = element_text(size = 10),
-        axis.title.x = element_text(size = 10), 
+  theme(axis.title.y = element_text(size = 14,
+                                    margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(size = 14), 
         legend.key.size = unit(0.5, "cm"),
-        axis.text.x = element_text(size = 8), 
-        axis.text.y = element_text(size = 8))
+        axis.text.x = element_text(size = 12), 
+        axis.text.y = element_text(size = 12), 
+        legend.position = c(0.9, 0.75))
+
+d50_plot
 
 fs_cat = fs_cat + 
-  theme(legend.position = "none", aspect.ratio = 1,
+  theme(axis.title.y = element_text(size = 14,
+                                    margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(size = 14),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12),
+        legend.position = "none", aspect.ratio = 1,
         plot.margin = unit(c(0, -1, 0, 0), "cm")) 
 
 atp_cat_save = atp_cat +
-  theme(legend.position = "none", aspect.ratio = 1,
+  theme(axis.title.y = element_text(size = 14,
+                                    margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(size = 14),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12),legend.position = "none", aspect.ratio = 1,
         plot.margin = unit(c(0, 0, 0, -1), "cm"))
 
 
 d50_box = ggarrange(d50_plot, labels = c("A"), nrow = 2, ggarrange(fs_cat, atp_cat_save, ncol = 2, widths = c(3,3), labels = c("B", "C"), hjust = -5, align = "h"))
 
-ggsave("./Physical_Manuscript_Figures/d50_boxes.png", width = 12, height = 9, plot = d50_box)
+ggsave("./Figures/d50_boxes.png", width = 12, height = 9, plot = d50_box)
 
 ## Continue Pairwise Comparisons ####
 
