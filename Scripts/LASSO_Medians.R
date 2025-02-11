@@ -567,10 +567,10 @@ for (i in 1:num_seeds) {
                     # , standardize = TRUE, standardize.response = FALSE, intercept = FALSE
   )
   
-  #best_lambda <- lasso$lambda.min
+  best_lambda <- lasso$lambda.min
   #best_lambda
   #plot(lasso)
-  best_lambda <- lasso$lambda.1se
+  #best_lambda <- lasso$lambda.1se
   
   best_lasso_model <- glmnet(xvars, yvar, alpha = 1, lambda = best_lambda, family = "gaussian",
                              standardize = FALSE, standardize.response = FALSE, intercept = FALSE
@@ -648,8 +648,8 @@ fs = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_
   geom_point(size = 2, shape = 1) +
   theme_bw() +
   #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
-  stat_cor(data = cube_effect, label.x = 1.1, label.y = 11, size = 3, digits = 2, aes(label = paste(..rr.label..)))+
-  stat_cor(data = cube_effect, label.x = 1.1, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_cor(data = cube_effect, label.x = 1.1, label.y = 11, size = 3, digits = 2, aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 1.1, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
   stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed') + 
   #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
   ylab("")+
@@ -660,8 +660,8 @@ atp = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg
   geom_point(size = 2, shape  = 1) +
   theme_bw() +
   #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
-  stat_cor(data = cube_effect, label.x = 1.1, label.y = 11, size = 3, digits = 2, aes(label = paste(..rr.label..)))+
-  stat_cor(data = cube_effect, label.x = 1.1, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_cor(data = cube_effect, label.x = 1.1, label.y = 11, size = 3, digits = 2, aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 1.1, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
   stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed') + 
   #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
   ylab("")+
@@ -672,8 +672,8 @@ toc = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg
   geom_point(shape = 1, size = 2) +
   theme_bw() +
   #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
-  stat_cor(data = cube_effect, label.x = 0.55, label.y = 11, size = 3, digits = 2, aes(label = paste(..rr.label..)))+
-  stat_cor(data = cube_effect, label.x = 0.55, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_cor(data = cube_effect, label.x = 0.55, label.y = 11, size = 3, digits = 2, aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 0.55, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
   stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed') + 
   #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
   ylab("")+
@@ -684,8 +684,8 @@ tn = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_
   geom_point(shape =1, size = 2) +
   theme_bw() +
   #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
-  stat_cor(data = cube_effect, label.x = 0.225, label.y = 11, size = 3, digits = 2, aes(label = paste(..rr.label..)))+
-  stat_cor(data = cube_effect, label.x = 0.225, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_cor(data = cube_effect, label.x = 0.225, label.y = 11, size = 3, digits = 2, aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 0.225, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
   stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed')+ 
  # ylab("Effect Size Respiration Rate (mg/kg)") +
   ylab("")+
@@ -696,9 +696,9 @@ spc = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg
   geom_point(shape = 1, size = 2) +
   theme_bw() +
   #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
-  stat_cor(data = cube_effect, label.x = 2.5, label.y = 11, size = 3, digits = 2, aes(label = paste(..rr.label..)))+
-  stat_cor(data = cube_effect, label.x = 2.5, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
-  #stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed')+ 
+  stat_cor(data = cube_effect, label.x = 2.5, label.y = 11, size = 3, digits = 2, aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 2.5, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed')+ 
   #ylab("Effect Size Respiration Rate (mg/kg)") +
   ylab("")+
   xlab(expression("Median SpC (\u03BCS cm"^-1*")"^(1/3)))+ 
@@ -709,8 +709,8 @@ fe = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_
   geom_point(fe_cube_effect, mapping = aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = cube_Effect_Size_Fe_mg_per_kg), color = "red", size = 2) +
   theme_bw() +
   #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
-  stat_cor(data = cube_effect, label.x = -2.5, label.y = 11, size = 3, digits = 2, aes(label = paste(..rr.label..)))+
-  stat_cor(data = cube_effect, label.x = -2.5, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_cor(data = cube_effect, label.x = -2.5, label.y = 11, size = 3, digits = 2, aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = -2.5, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
   stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed')+ 
   #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
   ylab("")+
