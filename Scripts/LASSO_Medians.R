@@ -415,111 +415,118 @@ corr_effect_df = as.data.frame(corr_effect) %>%
 
 ## All Medians
 
-all_pearson_df = as.data.frame(scale_cube_effect_pearson)
+# all_pearson_df = as.data.frame(scale_cube_effect_pearson)
+# 
+# row_names_pearson <- rownames(all_pearson_df)
+# 
+# all_pearson_df$Variable <- row_names_pearson
+# 
+# # Melt the dataframe for plotting
+# all_pearson_melted <- reshape2::melt(all_pearson_df, id.vars = "Variable") %>% 
+#   filter(value != 1) %>% 
+#   mutate(value = abs(value)) %>% 
+#   filter(!grepl("Respiration", Variable))
+# 
+# all_effect_melted <- all_pearson_melted %>% 
+#   filter(grepl("Effect_Size_Respiration", variable)) %>%
+#   filter(!grepl("Silt", Variable)) # remove silt from variables, 0 values so not using
+# 
+# all_choose_melted <- all_pearson_melted %>% 
+#   filter(!grepl("Respiration", variable)) %>%
+#   filter(!grepl("Silt", variable)) %>%
+#   filter(!grepl("Silt", Variable)) %>% #try removing silt (has 0 values)
+#   #distinct(value, .keep_all = TRUE) %>% 
+#   left_join(all_effect_melted, by = "Variable") %>% 
+#   rename(Variable_1 = Variable) %>% 
+#   rename(Variable_2 = variable.x) %>% 
+#   rename(Correlation = value.x) %>% 
+#   rename(Variable_1_Effect_Correlation = value.y) %>% 
+#   select(-c(variable.y)) %>% 
+#   left_join(all_effect_melted, by = c("Variable_2" = "Variable")) %>% 
+#   rename(Variable_2_Effect_Correlation = value) %>% 
+#   select(-c(variable))
+# 
+# all_loop_melt = all_choose_melted %>% 
+#   arrange(desc(Correlation))
+# 
+# # Pearson correlation coefficient to remove above
+# correlation = 0.7
+# 
+# ## Start loop to remove highly correlated (> 0.7)
+# all_effect_filter = function(all_loop_melt) {
+#   
+#   rows_to_keep = rep(TRUE, nrow(all_loop_melt))
+#   
+#   for (i in seq_len(nrow(all_loop_melt))) {
+#     
+#     if (!rows_to_keep[i]) next
+#     
+#     row = all_loop_melt[i, ]
+#     
+#     if (row$Correlation < correlation) next
+#     
+#     if(row$Variable_1_Effect_Correlation >= row$Variable_2_Effect_Correlation) {
+#       
+#       var_to_keep = row$Variable_1
+#       var_to_remove = row$Variable_2
+#       
+#     } else {
+#       
+#       var_to_keep = row$Variable_2
+#       var_to_remove = row$Variable_1
+#       
+#     }
+#     
+#     all_loop_melt$Variable_to_Keep[i] = var_to_keep
+#     all_loop_melt$Variable_to_Remove[i] = var_to_remove
+#     
+#     for (j in seq(i + 1, nrow(all_loop_melt))) {
+#       
+#       if(all_loop_melt$Variable_1[j] == var_to_remove || all_loop_melt$Variable_2[j] == var_to_remove) {
+#         
+#         rows_to_keep[j] = FALSE
+#         
+#       }
+#       
+#     }
+#     
+#     
+#   }
+#   
+#   return(all_loop_melt[rows_to_keep, ])
+#   
+# }
+# 
+# all_filtered_data = all_effect_filter(all_loop_melt) 
+# 
+# # pull out variables to remove
+# all_removed_variables = all_filtered_data %>% 
+#   distinct(Variable_to_Remove)
+# 
+# # pull out all variables 
+# all_variables = all_effect_melted %>% 
+#   select(c(Variable))
+# 
+# # remove variables from all variables to get variables to keep for LASSO 
+# all_kept_variables = all_effect_melted[!(all_effect_melted$Variable %in% all_removed_variables$Variable_to_Remove), ] #keeps SpC, Temp, pH, ATP, NPOC, TN (ext), TOC, TN (solid), med sand, silt
+# 
+# # if silt is removed, keeps SpC, Temp, pH, ATP, NPOC, TOC, TN (solid), med sand, fine sand, lost grav. moisture
+# 
+# ## LASSO VARIABLES ####
+# 
+# # Keep variables selected from down-selected correlation matrix and add Cube_Effect_Size
+# col_to_keep = unique(all_kept_variables$Variable)
+# col_to_keep = c(col_to_keep, "cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H")
 
-row_names_pearson <- rownames(all_pearson_df)
+#all_cube_variables = cube_effect[, col_to_keep, drop = FALSE]
 
-all_pearson_df$Variable <- row_names_pearson
+all_cube_variables = cube_effect %>% 
+  select(-c(cube_Percent_Silt))
 
-# Melt the dataframe for plotting
-all_pearson_melted <- reshape2::melt(all_pearson_df, id.vars = "Variable") %>% 
-  filter(value != 1) %>% 
-  mutate(value = abs(value)) %>% 
-  filter(!grepl("Respiration", Variable))
-
-all_effect_melted <- all_pearson_melted %>% 
-  filter(grepl("Effect_Size_Respiration", variable)) %>%
-  filter(!grepl("Silt", Variable)) # remove silt from variables, 0 values so not using
-
-all_choose_melted <- all_pearson_melted %>% 
-  filter(!grepl("Respiration", variable)) %>%
-  filter(!grepl("Silt", variable)) %>%
-  filter(!grepl("Silt", Variable)) %>% #try removing silt (has 0 values)
-  #distinct(value, .keep_all = TRUE) %>% 
-  left_join(all_effect_melted, by = "Variable") %>% 
-  rename(Variable_1 = Variable) %>% 
-  rename(Variable_2 = variable.x) %>% 
-  rename(Correlation = value.x) %>% 
-  rename(Variable_1_Effect_Correlation = value.y) %>% 
-  select(-c(variable.y)) %>% 
-  left_join(all_effect_melted, by = c("Variable_2" = "Variable")) %>% 
-  rename(Variable_2_Effect_Correlation = value) %>% 
-  select(-c(variable))
-
-all_loop_melt = all_choose_melted %>% 
-  arrange(desc(Correlation))
-
-# Pearson correlation coefficient to remove above
-correlation = 0.7
-
-## Start loop to remove highly correlated (> 0.7)
-all_effect_filter = function(all_loop_melt) {
-  
-  rows_to_keep = rep(TRUE, nrow(all_loop_melt))
-  
-  for (i in seq_len(nrow(all_loop_melt))) {
-    
-    if (!rows_to_keep[i]) next
-    
-    row = all_loop_melt[i, ]
-    
-    if (row$Correlation < correlation) next
-    
-    if(row$Variable_1_Effect_Correlation >= row$Variable_2_Effect_Correlation) {
-      
-      var_to_keep = row$Variable_1
-      var_to_remove = row$Variable_2
-      
-    } else {
-      
-      var_to_keep = row$Variable_2
-      var_to_remove = row$Variable_1
-      
-    }
-    
-    all_loop_melt$Variable_to_Keep[i] = var_to_keep
-    all_loop_melt$Variable_to_Remove[i] = var_to_remove
-    
-    for (j in seq(i + 1, nrow(all_loop_melt))) {
-      
-      if(all_loop_melt$Variable_1[j] == var_to_remove || all_loop_melt$Variable_2[j] == var_to_remove) {
-        
-        rows_to_keep[j] = FALSE
-        
-      }
-      
-    }
-    
-    
-  }
-  
-  return(all_loop_melt[rows_to_keep, ])
-  
-}
-
-all_filtered_data = all_effect_filter(all_loop_melt) 
-
-# pull out variables to remove
-all_removed_variables = all_filtered_data %>% 
-  distinct(Variable_to_Remove)
-
-# pull out all variables 
-all_variables = all_effect_melted %>% 
-  select(c(Variable))
-
-# remove variables from all variables to get variables to keep for LASSO 
-all_kept_variables = all_effect_melted[!(all_effect_melted$Variable %in% all_removed_variables$Variable_to_Remove), ] #keeps SpC, Temp, pH, ATP, NPOC, TN (ext), TOC, TN (solid), med sand, silt
-
-# if silt is removed, keeps SpC, Temp, pH, ATP, NPOC, TOC, TN (solid), med sand, fine sand, lost grav. moisture
-
-## LASSO VARIABLES ####
-
-# Keep variables selected from down-selected correlation matrix and add Cube_Effect_Size
-col_to_keep = unique(all_kept_variables$Variable)
-col_to_keep = c(col_to_keep, "cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H")
-
-all_cube_variables = cube_effect[, col_to_keep, drop = FALSE]
-
+all_variables = effect_data %>% 
+  select(-c(Percent_Silt, Effect_Size_ATP_nanomoles_per_L, Effect_Size_Respiration_Rate_mg_DO_per_L_per_H, Effect_Size_Fe_mg_per_L, Effect_Size_Extractable_NPOC_mg_per_L, Effect_Size_Extractable_TN_mg_per_L, Median_ATP_nanomoles_per_L, Median_Fe_mg_per_L, Median_Extractable_NPOC_mg_per_L, Median_Extractable_TN_mg_per_L)) %>% 
+  column_to_rownames("Sample_Name") %>% 
+  filter(Effect_Size_Fe_mg_per_kg > -2)
 ## Loop through LASSO to get average over a lot of seeds ####
 
 num_seeds = 100
@@ -527,6 +534,8 @@ seeds = sample(1:500, num_seeds)
 
 ## Set response variable (Cube_Effect_Size) and scale
 yvar <- data.matrix(scale(all_cube_variables$cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, center = TRUE, scale = TRUE))
+
+#yvar <- data.matrix(scale(all_variables$Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, center = TRUE, scale = TRUE))
 mean(yvar)
 sd(yvar)
 
@@ -537,10 +546,13 @@ r2_scores = numeric(num_seeds)
 
 ## Set predictor variables and scale
 exclude_col = "cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H"
+#exclude_col = "Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H"
 
 all_x_cube_variables = as.data.frame(scale(all_cube_variables[, !(names(all_cube_variables) %in% exclude_col)], center = T, scale = T))
-#mean(x_cube_variables$Cube_SpC_Diff)
-#sd(x_cube_variables$Cube_SpC_Diff)
+
+#all_x_cube_variables = as.data.frame(scale(all_variables[, !(names(all_variables) %in% exclude_col)], center = T, scale = T))
+mean(all_x_cube_variables$Effect_Size_SpC_microsiemens_per_cm)
+sd(all_x_cube_variables$Effect_Size_SpC_microsiemens_per_cm)
 
 xvars <- data.matrix(all_x_cube_variables)
 
@@ -555,9 +567,10 @@ for (i in 1:num_seeds) {
                     # , standardize = TRUE, standardize.response = FALSE, intercept = FALSE
   )
   
-  best_lambda <- lasso$lambda.min
+  #best_lambda <- lasso$lambda.min
   #best_lambda
   #plot(lasso)
+  best_lambda <- lasso$lambda.1se
   
   best_lasso_model <- glmnet(xvars, yvar, alpha = 1, lambda = best_lambda, family = "gaussian",
                              standardize = FALSE, standardize.response = FALSE, intercept = FALSE
@@ -604,7 +617,8 @@ mean_coeffs = as.data.frame(norm_coeffs_matrix, row.names = rownames(norm_coeffs
 colnames(mean_coeffs) = make.names(colnames(mean_coeffs), unique = T)
 
 # Make DF of all LASSO results with mean and std. dev  
-mean_coeffs_df = mean_coeffs %>% 
+mean_coeffs_df = mean_coeffs %>%
+  select_if(~all(!is.nan(.))) %>% 
   mutate(variable = rownames(mean_coeffs)) %>% 
   rowwise() %>% 
   mutate(mean = mean(c_across(contains("s1"))), 
