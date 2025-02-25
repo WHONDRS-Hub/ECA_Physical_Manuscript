@@ -780,7 +780,7 @@ ggsave("./Figures/Combined_Pearson_Lasso_Matrix.png", plot = combined_matrix, wi
 col_scatter = ggarrange(fs, atp, tn, fe, toc, spc, ncol = 3, nrow = 2, common.legend =  T, legend = "right",  labels = c("B", "C", "D", "E", "F", "G", "H"), label.x = 0.875, label.y = 0.28, align = "hv", heights = c(1,1), font.label = list(size = 12))
 
  # Annotate Figure by adding common "Effect Size" y-axis
-col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effect Size Respiration Rate mg kg"^-1*")"^(1/3)), rot = 90, size = 12))
+col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3)), rot = 90, size = 12))
 
 col_scatter_ann
 
