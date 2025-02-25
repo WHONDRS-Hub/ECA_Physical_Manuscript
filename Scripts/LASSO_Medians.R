@@ -377,7 +377,7 @@ cube_effect_hist
 
 combined_hist = ggarrange(all_cube_hist, cube_effect_hist, ncol = 2, labels = c("A", "B"), hjust = -5, vjust = 2.5)
 
-ggsave("./Physical_Manuscript_Figures/Combined_Cube_Histograms.pdf", plot = combined_hist, width = 10, height = 5)
+ggsave("./Physical_Manuscript_Figures/Combined_Cube_Histograms.pdf", plot = combined_hist, width = 10, height = 5, dpi = 300)
 
 ## Pearson Correlation Matrix ####
 
@@ -772,7 +772,7 @@ combined_matrix = ggplot() +
  
 combined_matrix
  
-ggsave("./Figures/Combined_Pearson_Lasso_Matrix.png", plot = combined_matrix, width = 9, height = 4)
+ggsave("./Figures/Combined_Pearson_Lasso_Matrix.png", plot = combined_matrix, width = 9, height = 4, dpi = 300)
 
 # Merge Matrices + Scatter Plots ####
 
@@ -784,7 +784,7 @@ col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effe
 
 col_scatter_ann
 
-ggsave("./Figures/Scatter_Plots.png", plot = col_scatter_ann, width = 9, height = 6)
+ggsave("./Figures/Scatter_Plots.png", plot = col_scatter_ann, width = 9, height = 6, dpi = 300)
 
 
 ## Make sure to push figures - it was easier to combine/scale with saved figures. You will pull them back in and combine here
@@ -973,7 +973,7 @@ atp_cat_save = atp_cat +
 
 d50_box = ggarrange(d50_plot, labels = c("A"), nrow = 2, ggarrange(fs_cat, atp_cat_save, ncol = 2, widths = c(3,3), labels = c("B", "C"), hjust = -5, align = "h"))
 
-ggsave("./Figures/d50_boxes.png", width = 12, height = 9, plot = d50_box)
+ggsave("./Figures/d50_boxes.png", width = 12, height = 9, plot = d50_box, dpi = 300)
 
 ## Continue Pairwise Comparisons ####
 
