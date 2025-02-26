@@ -1,6 +1,8 @@
 #### Sensitivity Analysis For ECA removals ####
 
-# This script makes figures for ECA physical manuscript and performs PCA Analysis and LASSO regression
+# This script makes figures for ECA physical manuscript and performs PCA Analysis and LASSO regression on PCA Axes
+
+# It doesn't have looped/seeded LASSO regression
 
 library(tidyverse)
 library(corrplot)
@@ -39,8 +41,6 @@ cube_respiration = all_data %>%
 
 
 ## Effect Size Data
-
-#change this to published data when ready
 
 effect = read.csv("C:/GitHub/ECA_Multireactor_Incubations/Data/EC_Sediment_Effect_Size.csv", skip = 2) %>% 
   filter(grepl("EC", Sample_Name)) %>% 
@@ -309,7 +309,10 @@ cube_pca
 
 dev.off()
 
+
 # LASSO from downselected Pearson Correlation Variables  ------------------
+## code following this is the same as the LASSO_Medians.R script without looped lasso
+
 
 ## Pearson Correlation Matrix ####
 
