@@ -353,9 +353,9 @@ all_cube_variables = cube_effect %>%
   select(-c(cube_Percent_Silt))
 
 ## This data frame can be used to test non-cube root transformed data in LASSO
-# all_variables = effect_data %>% 
-#   select(-c(Percent_Silt, Effect_Size_ATP_nanomoles_per_L, Effect_Size_Respiration_Rate_mg_DO_per_L_per_H, Effect_Size_Fe_mg_per_L, Effect_Size_Extractable_NPOC_mg_per_L, Effect_Size_Extractable_TN_mg_per_L, Median_ATP_nanomoles_per_L, Median_Fe_mg_per_L, Median_Extractable_NPOC_mg_per_L, Median_Extractable_TN_mg_per_L)) %>% 
-#   column_to_rownames("Sample_Name") %>% 
+# all_variables = effect_data %>%
+#   select(-c(Percent_Silt, Effect_Size_ATP_nanomoles_per_L, Effect_Size_Respiration_Rate_mg_DO_per_L_per_H, Effect_Size_Fe_mg_per_L, Effect_Size_Extractable_NPOC_mg_per_L, Effect_Size_Extractable_TN_mg_per_L, Median_ATP_nanomoles_per_L, Median_Fe_mg_per_L, Median_Extractable_NPOC_mg_per_L, Median_Extractable_TN_mg_per_L)) %>%
+#   column_to_rownames("Sample_Name") %>%
 #   filter(Effect_Size_Fe_mg_per_kg > -2)
 
 # Loop through LASSO to get average over 100 seeds  -----------------------
@@ -626,7 +626,7 @@ ggsave("./Figures/Combined_Pearson_Lasso_Matrix.png", plot = combined_matrix, wi
 col_scatter = ggarrange(fs, atp, tn, fe, toc, spc, ncol = 3, nrow = 2, common.legend =  T, legend = "right",  labels = c("B", "C", "D", "E", "F", "G", "H"), label.x = 0.875, label.y = 0.28, align = "hv", heights = c(1,1), font.label = list(size = 12))
 
  # Annotate Figure by adding common "Effect Size" y-axis
-col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3)), rot = 90, size = 12))
+col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effect size O"[2]*" consumption rate (mg kg"^-1*")"^(1/3)), rot = 90, size = 12))
 
 col_scatter_ann
 
@@ -635,11 +635,11 @@ ggsave("./Figures/Scatter_Plots.png", plot = col_scatter_ann, width = 9, height 
 
 ## Make sure to push figures - it was easier to combine/scale with saved figures. You will pull them back in and combine here
 
-combine_hm_image = image_read("C:/GitHub/ECA_Physical_Manuscript/Figures/Combined_Pearson_Lasso_Matrix.png")
+combine_hm_image = image_read("./Figures/Combined_Pearson_Lasso_Matrix.png")
 
 combine_label_image = image_annotate(combine_hm_image, "A", size = 100, location = "+25+25", color = "black")
 
-scatter_plot = image_read("C:/GitHub/ECA_Physical_Manuscript/Figures/Scatter_Plots.png")
+scatter_plot = image_read("./Figures/Scatter_Plots.png")
 
 scatter_scale = image_scale(scatter_plot, "100%")
 
@@ -656,7 +656,7 @@ scatter_scale_padded <- image_extent(
 
 whole_image = image_append(c(combine_label_image, scatter_scale_padded), stack = TRUE)
 
-image_write(whole_image, path = "./Figures/Scatter_Heat_Map.png")
+image_write(whole_image, path = "./Figures/Scatter_Heat_Map.png", density = 300)
 
 # Conceptual Model --------------------------------------------------------
 
@@ -680,6 +680,13 @@ d50_plot = ggplot(effect_d50, aes(x = round(d50, 2), y = Effect_Size_Respiration
 
 
 # ANOVA + Pairwise Tests for CLD Boxplots ---------------------------------
+
+effect_analysis = effect_d50 %>% 
+  select(c(Sample_Name, Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, Effect_Size_Fe_mg_per_kg, d50, Percent_Fine_Sand,  Median_ATP_picomoles_per_g, Median_X01397_N_percent_per_mg, Median_X01395_C_percent_per_mg, Median_SpC_microsiemens_per_cm, median_Dry_Final_Gravimetric)) %>% 
+  mutate(category = cut(d50, breaks = c(0, 0.053, 0.25, 2), 
+                        labels = c("Clay/Silt", "Fine Sand", "Med/Coarse Sand"), 
+                        include.lowest = T, right = F)) %>% 
+  mutate(Effect_Size_Fe_mg_per_kg = ifelse(Effect_Size_Fe_mg_per_kg < -10, NA, Effect_Size_Fe_mg_per_kg))
 
 cube_effect_analysis = effect_analysis %>% 
   mutate(cube_Effect = cube_root(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) %>% 
@@ -751,8 +758,8 @@ atp_cat = ggplot(effect_analysis, aes(x = category, y = Median_ATP_picomoles_per
 
 ## Final Conceptual Figure?? ####
 d50_plot = d50_plot +
-  ylab(expression("Effect Size Respiration (mg kg"^-1*")")) +
-  theme(axis.title.y = element_text(size = 14,
+  ylab(expression("Effect size O"[2]*" consumption rate (mg kg"^-1*")")) +
+  theme(axis.title.y = element_text(size = 12.5,
                                     margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(size = 14), 
         legend.key.size = unit(0.5, "cm"),
