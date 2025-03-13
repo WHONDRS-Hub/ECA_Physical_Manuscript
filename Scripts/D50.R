@@ -2,8 +2,13 @@
 
 library(tidyverse)
 
+current_path <- rstudioapi::getActiveDocumentContext()$path
+setwd(dirname(current_path))
+setwd("./..")
+getwd()
+
 ## Read in Grain Size Data and remove samples without data
-grain = read.csv("C:/GitHub/ECA_Physical_Manuscript/Data/v3_CM_SSS_Sediment_Sample_Data_Summary.csv", skip = 2) %>% 
+grain = read.csv("./Data/v3_CM_SSS_Sediment_Sample_Data_Summary.csv", skip = 2) %>% 
   filter(grepl("CM", Sample_Name)) %>% 
   mutate(Sample_Name = str_replace(Sample_Name, "CM", "EC")) %>% 
   mutate(Sample_Name = str_replace(Sample_Name, "Sediment", "all")) %>% 
@@ -20,7 +25,7 @@ grain_range = grain %>%
   group_by(Sample_Name) %>%
   mutate(percent_finer = cumsum(Percent)) %>%
   mutate(below_50 = ifelse(percent_finer < 50, TRUE, FALSE)) %>% # define below 50% grain size limit
-  mutate(above_50 = ifelse(percent_finer > 50, TRUE, FALSE)) %>% # define above 50% grain size limit
+  mutate(above_50 = ifelse(percent_finer >= 50, TRUE, FALSE)) %>% # define above 50% grain size limit
   ungroup()
 
 d50 = grain_range %>% 
@@ -31,13 +36,15 @@ d50 = grain_range %>%
   mutate(keep = ifelse(below_50 == TRUE, TRUE, FALSE)) %>% 
   mutate(keep = ifelse(keep == TRUE, TRUE, ifelse(row_number() == min(row_number()[above_50 == TRUE]), TRUE, keep))) %>% 
   filter(keep == TRUE) %>% # keep only above/below 50% size classes
+ # calculated weighted 50% point between above/below 50% classes
   mutate(d50 = first(Size[below_50]) +
-            (50 - first(percent_finer[below_50])) *
-            (first(Size[above_50]) - first(Size[below_50])) /
-           (first(percent_finer[above_50]) - first(percent_finer[below_50]))) %>% # calculated weighted 50% point between above/below 50% classes
-  na.omit() %>% 
+                     (((50 - first(percent_finer[below_50]))/
+                     (first(percent_finer[above_50]) - first(percent_finer[below_50]))) * 
+                    (first(Size[above_50]) - first(Size[below_50])))) %>% 
+  na.omit() %>%
   select(c(Sample_Name, d50)) %>% 
   distinct(Sample_Name, .keep_all = TRUE)
+
 
 png(file = paste0("C:/Github/ECA_Multireactor_Incubations/Physical_Manuscript_Figures/", as.character(Sys.Date()),"_D50_Range.png"), width = 12, height = 12, units = "in", res = 300)
 
@@ -50,4 +57,4 @@ ggplot(grain_range, mapping=aes(y = percent_finer, x = log10(Size))) +
 
 dev.off()
 
-write.csv(d50, "C:/Github/ECA_Multireactor_Incubations/Data/D50_Calculations.csv", row.names = FALSE)
+write.csv(d50, "./Data/D50_Calculations.csv", row.names = FALSE)
