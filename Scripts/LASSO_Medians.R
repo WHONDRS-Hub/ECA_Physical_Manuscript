@@ -626,7 +626,7 @@ ggsave("./Figures/Combined_Pearson_Lasso_Matrix.png", plot = combined_matrix, wi
 col_scatter = ggarrange(fs, atp, tn, fe, toc, spc, ncol = 3, nrow = 2, common.legend =  T, legend = "right",  labels = c("B", "C", "D", "E", "F", "G", "H"), label.x = 0.875, label.y = 0.28, align = "hv", heights = c(1,1), font.label = list(size = 12))
 
  # Annotate Figure by adding common "Effect Size" y-axis
-col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effect size O"[2]*" consumption rate (mg kg"^-1*")"^(1/3)), rot = 90, size = 12))
+col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effect size O"[2]*" consumption rate (mg O"[2]*" kg"^-1*" H"^-1*")"^(1/3)), rot = 90, size = 12))
 
 col_scatter_ann
 
@@ -758,8 +758,8 @@ atp_cat = ggplot(effect_analysis, aes(x = category, y = Median_ATP_picomoles_per
 
 ## Final Conceptual Figure?? ####
 d50_plot = d50_plot +
-  ylab(expression("Effect size O"[2]*" consumption rate (mg kg"^-1*")")) +
-  theme(axis.title.y = element_text(size = 12.5,
+  ylab(expression("Effect size O"[2]*" consumption rate (mg O"[2]*" kg"^-1*" H"^-1*")")) +
+  theme(axis.title.y = element_text(size = 10.5,
                                     margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(size = 14), 
         legend.key.size = unit(0.5, "cm"),
