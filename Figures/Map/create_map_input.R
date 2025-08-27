@@ -42,9 +42,11 @@ select(Parent_ID, Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H) #select colum
 
 input_file <- metadata %>%
   full_join(data) %>%
-  filter(!Parent_ID %in% c('EC_011','EC_012', 'EC_023','EC_052','EC_053','EC_057')) # remove Parent_IDs not used in the analysis
+  filter(!Parent_ID %in% c('EC_011','EC_012', 'EC_023','EC_052','EC_053','EC_057')) %>% # remove Parent_IDs not used in the analysis
+  arrange(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)
 
-write_csv(input_file, './Physical_Manuscript_Figures/Map/Map_Input_File.csv')
+  
+write_csv(input_file, './Figures/Map/Map_Input_File.csv')
 
 # This input file will not be included in the data package. Rerun this script in order to 
 # reproduce the map. Use the "Repair Data Source" function to select the file created by this script. 
