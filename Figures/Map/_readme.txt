@@ -16,6 +16,9 @@ Brieanne Forbes
 	Field site locations, displaying domain boundaries (Monet ecoregions based on this)
 - cb_2018_us_state_20m
 	https://www2.census.gov/geo/tiger/GENZ2018/shp/
+- CONUS_SO8_Flowlines
+	Blodgett, D., Johnson, J.M., 2022, nhdplusTools: Tools for Accessing and Working with the NHDPlus,
+  https://doi.org/10.5066/P97AS8JD
 
 13 Sept 2024
 Brieanne Forbes
