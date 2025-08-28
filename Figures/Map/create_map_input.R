@@ -43,7 +43,7 @@ select(Parent_ID, Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H) #select colum
 input_file <- metadata %>%
   full_join(data) %>%
   filter(!Parent_ID %in% c('EC_011','EC_012', 'EC_023','EC_052','EC_053','EC_057')) %>% # remove Parent_IDs not used in the analysis
-  arrange(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)
+  arrange(desc(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
 
   
 write_csv(input_file, './Figures/Map/Map_Input_File.csv')
