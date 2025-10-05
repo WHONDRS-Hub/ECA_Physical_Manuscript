@@ -620,13 +620,13 @@ atp_fine_sand = ggplot(cube_effect, aes(y = cube_Percent_Fine_Sand, x = cube_Med
   geom_point(size = 2, shape  = 1) +
   theme_bw() +
   #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
-  stat_cor(data = cube_effect, label.x = 1.1, label.y = 4.5, size = 3.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
+  stat_cor(data = cube_effect, label.x = 1.1, label.y = 4.5, size = 4.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
   #stat_cor(data = cube_effect, label.x = 1.1, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
   stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed') + 
   #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
   ylab(expression("Percent Fine Sand "^(1/3)))+
   xlab(expression("Median ATP (pmol g"^-1*")"^(1/3)))+ 
-  theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
+  theme(legend.position  = "none", aspect.ratio = 1, axis.title.y = element_text(size = 12), axis.title.x = element_text(size = 12))
 
 ggsave("./Figures/SI_Fig_ATP_Fine_Sand.png", plot = atp_fine_sand, width = 6, height = 6, dpi = 300)
 
