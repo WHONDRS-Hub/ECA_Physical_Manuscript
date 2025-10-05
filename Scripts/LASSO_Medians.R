@@ -57,7 +57,6 @@ median_respiration = all_data %>%
   select(c(Sample_ID, Median_SpC_microsiemens_per_cm, Median_pH, Median_Temperature_degC, Median_Respiration_Rate_mg_DO_per_L_per_H, Median_Respiration_Rate_mg_DO_per_kg_per_H)) %>% 
   ungroup()
 
-
 ## Calculate "bulk" medians (not separated by wet/dry) ---------------------
 
 # ATP ####
@@ -240,10 +239,11 @@ grain = read.csv("./Data/v3_CM_SSS_Sediment_Sample_Data_Summary.csv", skip = 2) 
   select(c(Sample_Name, Percent_Tot_Sand, Percent_Coarse_Sand, Percent_Med_Sand, Percent_Fine_Sand, Percent_Silt, Percent_Clay, Mean_Specific_Surface_Area_m2_per_g))
 
 ## Join all data with effect size ####
-
+#icon (remove)
 effect_data = left_join(effect, grain, by = "Sample_Name") %>% 
   left_join(all_medians) %>% 
   left_join(median_dry) %>% 
+ # left_join(icon_npoc_tn) %>% 
   mutate(across(c(Effect_Size_SpC_microsiemens_per_cm:Mean_Specific_Surface_Area_m2_per_g), as.numeric)) %>%  # make data numeric 
     select(-c(Effect_Size_Initial_Gravimetric_Moisture_g_per_g, Effect_Size_Final_Gravimetric_Moisture_g_per_g, Median_Respiration_Rate_mg_DO_per_L_per_H, Median_Respiration_Rate_mg_DO_per_kg_per_H)) %>% 
   rename(median_Dry_Initial_Gravimetric = median_Initial_Gravimetric) %>% 
@@ -271,10 +271,58 @@ fe_cube_effect = effect_data %>%
   filter(cube_Effect_Size_Fe_mg_per_kg < -1) %>%
   relocate(cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, .before = cube_Effect_Size_SpC_microsiemens_per_cm)
 
+#untransformed data frame that includes only Fe outlier - this used for SI Scatter Plot
+fe_effect_data = effect_data %>% 
+ # mutate(across(where(is.numeric), cube_root)) %>% # cube root transform data
+  #rename_with(where(is.numeric), .fn = ~ paste0("cube_", .x)) %>% 
+  column_to_rownames("Sample_Name") %>%
+  select(-contains("per_L")) %>% 
+  filter(Effect_Size_Fe_mg_per_kg < -1) %>%
+  relocate(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, .before = Effect_Size_SpC_microsiemens_per_cm)
 
 # Histograms --------------------------------------------------------------
 
 ## Histogram of all Rates
+all_hist = all_data %>% 
+  filter(Respiration_Rate_mg_DO_per_kg_per_H != -9999) %>% # removes overexposed samples, missing replicates
+  mutate(Treat = if_else(grepl("D", Sample_Name), "Dry", "Wet")) %>% 
+  ggplot(aes(x = abs(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)))) +
+  geom_histogram(position = "identity", alpha = 0.8, aes(fill = Treat))+
+  scale_fill_manual(values = c("#D55E00","#0072B2"))  +
+  theme(strip.text = element_text(
+    size = 4))+
+  #ylim(0, 87.5)+
+  theme_bw() + 
+  theme(legend.position = c(0.85, 0.8), 
+        legend.key.size = unit(0.15, "in"), 
+        legend.title = element_text(size = 8),
+        axis.title.x = element_text(size = 10)) +
+  guides(fill = guide_legend(title="Treatment")) + 
+  xlab(expression(atop("\n Respiration Rate", "(mg O"[2]*" kg"^-1*" h"^-1*")"))) +
+  ylab("Count")
+
+all_hist
+
+effect_limits <- c(-1400, 1400)
+
+effect_hist = ggplot(effect_data, aes(x = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))+
+  geom_histogram(binwidth = 25, aes(fill = after_stat(x))) +
+  scale_fill_gradient2(name = "Effect Size", limits = effect_limits, low = "firebrick2", mid = "goldenrod2",
+                       high = "dodgerblue2", midpoint = (max(effect_limits)+min(effect_limits))/2) +
+  theme_bw()+
+  xlim(c(-1500, 1500))+
+  ylab("Count\n")+
+  theme(legend.position = "none",
+        axis.title.x = element_text(size = 10)) + 
+  xlab(expression(atop("\n Effect Size Respiration Rate","(Median Wet - Median Dry Rate; mg O"[2]*" kg"^-1*" h"^-1*")")))
+
+effect_hist
+
+combined_SI_hist = ggarrange(all_hist, effect_hist, ncol = 2, labels = c("A", "B"), hjust = -1, vjust = 2.5)
+
+ggsave("./Figures/Combined_SI_Histograms.png", plot = combined_SI_hist, width = 10, height = 5, dpi = 300)
+
+## Cube Root Transformed
 # These used with Nathan Johnson annotations in manuscript
 
 all_cube_hist = ggplot(cube_respiration, aes(x = cube_Respiration_mg_kg)) +
@@ -289,7 +337,7 @@ all_cube_hist = ggplot(cube_respiration, aes(x = cube_Respiration_mg_kg)) +
           legend.title = element_text(size = 8),
           axis.title.x = element_text(size = 10)) +
     guides(fill = guide_legend(title="Treatment")) + 
-    xlab(expression(atop("\n Respiration Rate" ^(1/3)*"", "(mg O"[2]*" kg"^-1*" H"^-1*")"))) +
+    xlab(expression(atop("\n Respiration Rate" ^(1/3)*"", "(mg O"[2]*" kg"^-1*" h"^-1*")"))) +
     ylab("Count")
   
   all_cube_hist
@@ -307,13 +355,13 @@ cube_effect_hist = ggplot(cube_effect, aes(x = cube_Effect_Size_Respiration_Rate
     ylab("Count\n")+
     theme(legend.position = "none",
           axis.title.x = element_text(size = 10)) + 
-    xlab(expression(atop("\n Effect Size Respiration Rate" ^(1/3)*"","(Median Wet - Median Dry Rate; mg O"[2]*" kg"^-1*" H"^-1*")")))
+    xlab(expression(atop("\n Effect Size Respiration Rate" ^(1/3)*"","(Median Wet - Median Dry Rate; mg O"[2]*" kg"^-1*" h"^-1*")")))
   
 cube_effect_hist
 
 combined_hist = ggarrange(all_cube_hist, cube_effect_hist, ncol = 2, labels = c("A", "B"), hjust = -5, vjust = 2.5)
 
-ggsave("./Physical_Manuscript_Figures/Combined_Cube_Histograms.pdf", plot = combined_hist, width = 10, height = 5, dpi = 300)
+#ggsave("./Physical_Manuscript_Figures/Combined_Cube_Histograms.pdf", plot = combined_hist, width = 10, height = 5, dpi = 300)
 
 ## Pearson Correlation Matrix ####
 
@@ -348,9 +396,10 @@ corr_effect_df = as.data.frame(corr_effect) %>%
   mutate(y = "Pearson")
 
 ## Make LASSO DF (remove silt)
-
+# icon (remove) remove NA sites for ICON test
 all_cube_variables = cube_effect %>% 
-  select(-c(cube_Percent_Silt))
+  select(-c(cube_Percent_Silt)) #%>% 
+ # filter(complete.cases(.)) # this icon addition
 
 ## This data frame can be used to test non-cube root transformed data in LASSO
 # all_variables = effect_data %>%
@@ -443,10 +492,10 @@ colnames(lasso_coef_mat) = make.names(colnames(lasso_coef_mat), unique = T)
 lasso_coef_means = lasso_coef_mat %>% 
   mutate(variable = rownames(lasso_coef_mat)) %>% 
   rowwise() %>% 
-  mutate(mean = mean(c_across(contains("s1"))), 
-         sd = sd(c_across(contains("s1")))) %>% 
-  relocate(mean, .before = s1) %>% 
-  relocate(sd, .before = s1) %>% 
+  mutate(mean = mean(c_across(contains("s0"))), 
+         sd = sd(c_across(contains("s0")))) %>% 
+  relocate(mean, .before = s0.1) %>% 
+  relocate(sd, .before = s0.1) %>% 
   relocate(variable, .before = mean)
 
 
@@ -462,10 +511,10 @@ mean_coeffs_df = mean_coeffs %>%
   select_if(~all(!is.nan(.))) %>% 
   mutate(variable = rownames(mean_coeffs)) %>% 
   rowwise() %>% 
-  mutate(mean = mean(c_across(contains("s1"))), 
-         sd = sd(c_across(contains("s1")))) %>% 
-  relocate(mean, .before = s1) %>% 
-  relocate(sd, .before = s1) %>% 
+  mutate(mean = mean(c_across(contains("s0"))), 
+         sd = sd(c_across(contains("s0")))) %>% 
+  relocate(mean, .before = s0.1) %>% 
+  relocate(sd, .before = s0.1) %>% 
   relocate(variable, .before = mean)
 
 # calculate mean and SD R2
@@ -490,6 +539,8 @@ norm_lasso_df = mean_coeffs_df = mean_coeffs_df %>%
 ### Make Figures ---------------------------
 
 # Scatter Plots #### 
+
+# Cube Root for Manuscript
 fs = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = cube_Percent_Fine_Sand)) +
   geom_point(size = 2, shape = 1) +
   theme_bw() +
@@ -563,6 +614,120 @@ fe = ggplot(cube_effect, aes(y = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_
   xlab(expression("Effect Size Fe (II) (mg kg"^-1*")"^(1/3)))+ 
   theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
 
+## Fine Sand vs. ATP scatter
+
+atp_fine_sand = ggplot(cube_effect, aes(y = cube_Percent_Fine_Sand, x = cube_Median_ATP_picomoles_per_g)) +
+  geom_point(size = 2, shape  = 1) +
+  theme_bw() +
+  #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
+  stat_cor(data = cube_effect, label.x = 1.1, label.y = 4.5, size = 3.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 1.1, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_poly_line(data = cube_effect, se = FALSE, linetype = 'dashed') + 
+  #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
+  ylab(expression("Percent Fine Sand "^(1/3)))+
+  xlab(expression("Median ATP (pmol g"^-1*")"^(1/3)))+ 
+  theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
+
+ggsave("./Figures/SI_Fig_ATP_Fine_Sand.png", plot = atp_fine_sand, width = 6, height = 6, dpi = 300)
+
+
+## Untransformed for SI
+
+si_fs = ggplot(effect_data, aes(y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = Percent_Fine_Sand)) +
+  geom_point(size = 2, shape = 1) +
+  theme_bw() +
+  #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
+  stat_cor(data = effect_data, label.x = 1.1, label.y = 1150, size = 3.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 1.1, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_poly_line(data = effect_data, se = FALSE, linetype = 'dashed') + 
+  #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
+  ylab("")+
+  xlab(expression("Fine Sand (%)")) + 
+  theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
+
+si_atp = ggplot(effect_data, aes(y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = Median_ATP_picomoles_per_g)) +
+  geom_point(size = 2, shape  = 1) +
+  theme_bw() +
+  #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
+  stat_cor(data = effect_data, label.x = 1.1, label.y = 1150, size = 3.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 1.1, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_poly_line(data = effect_data, se = FALSE, linetype = 'dashed') + 
+  #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
+  ylab("")+
+  xlab(expression("Median ATP (pmol g"^-1*")"))+ 
+  theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
+
+si_toc = ggplot(effect_data, aes(y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = Median_X01395_C_percent_per_mg)) +
+  geom_point(shape = 1, size = 2) +
+  theme_bw() +
+  #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
+  stat_cor(data = effect_data, label.x = 0.55, label.y = 1150, size = 3.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 0.55, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_poly_line(data = effect_data, se = FALSE, linetype = 'dashed') + 
+  #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
+  ylab("")+
+  xlab(expression("Median TOC (%)"))+ 
+  theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
+
+si_tn = ggplot(effect_data, aes(y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = Median_X01397_N_percent_per_mg)) +
+  geom_point(shape =1, size = 2) +
+  theme_bw() +
+  #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
+  stat_cor(data = effect_data, label.x = 0, label.y = 1150, size = 3.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 0.225, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_poly_line(data = effect_data, se = FALSE, linetype = 'dashed')+ 
+  # ylab("Effect Size Respiration Rate (mg/kg)") +
+  ylab("")+
+  xlab(expression("Median TN (%)"))+ 
+  theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
+
+si_spc = ggplot(effect_data, aes(y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = Median_SpC_microsiemens_per_cm)) +
+  geom_point(shape = 1, size = 2) +
+  theme_bw() +
+  #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
+  stat_cor(data = effect_data, label.x = 2.5, label.y = 1150, size = 3.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = 2.5, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_poly_line(data = effect_data, se = FALSE, linetype = 'dashed')+ 
+  #ylab("Effect Size Respiration Rate (mg/kg)") +
+  ylab("")+
+  xlab(expression("Median SpC (\u03BCS cm"^-1*")"))+ 
+  theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
+
+si_fe = ggplot(effect_data, aes(y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = Effect_Size_Fe_mg_per_kg)) +
+  geom_point(data = subset(effect_data,  Effect_Size_Fe_mg_per_kg > -1), shape = 1, size = 2) +
+  geom_point(fe_effect_data, mapping = aes(y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, x = Effect_Size_Fe_mg_per_kg), color = "red", size = 2) +
+  theme_bw() +
+  #stat_cor(data = fe_cube_out, size = 5, digits = 2, aes(label = paste(..rr.label.., ..p.label.., sep = "~`;`~")))+
+  stat_cor(data = subset(effect_data,  Effect_Size_Fe_mg_per_kg > -1), label.x = -15, label.y = 1150, size = 3.5, digits = 2, cor.coef.name = "r", aes(label = paste(..r.label..)))+
+  #stat_cor(data = cube_effect, label.x = -2.5, label.y = 10.25, size = 3, digits = 2, aes(label = paste(..p.label..)))+
+  stat_poly_line(data = subset(effect_data,  Effect_Size_Fe_mg_per_kg > -1), se = FALSE, linetype = 'dashed')+ 
+  #ylab(expression("Effect Size Respiration Rate (mg kg"^-1*")"^(1/3))) +
+  ylab("")+
+  xlab(expression("Effect Size Fe (II) (mg kg"^-1*")"))+ 
+  theme(legend.position  = "none", aspect.ratio = 1, axis.title.x = element_text(size = 10))
+
+# Pull together scatter plots
+col_scatter_si = ggarrange(si_fs, si_atp, si_tn, si_fe, si_toc, si_spc, ncol = 3, nrow = 2, common.legend =  T, legend = "right",  labels = c("A", "B", "C", "D", "E", "F", "G"), label.x = 0.825, label.y = 0.3, align = "hv", heights = c(1,1), font.label = list(size = 12))
+
+# Annotate Figure by adding common "Effect Size" y-axis
+col_scatter_ann_si = annotate_figure(
+  col_scatter_si,
+  left = text_grob(
+    expression(
+      atop(
+        "O"[2] * " consumption effect size",
+        "(Median wet - median dry rate; mg O"[2] * " kg"^-1 * " h"^-1 * ")"
+      )
+    ),
+    rot = 90, size = 12
+  )
+)
+
+col_scatter_ann_si
+
+ggsave("./Figures/Untransformed_Scatter_Plots_SI.png", plot = col_scatter_ann_si, width = 9, height = 6, dpi = 300)
+
+
 ## Combine LASSO and Pearson Coefficients into Heat Map ####
 
 # Update names for figure
@@ -626,7 +791,20 @@ ggsave("./Figures/Combined_Pearson_Lasso_Matrix.png", plot = combined_matrix, wi
 col_scatter = ggarrange(fs, atp, tn, fe, toc, spc, ncol = 3, nrow = 2, common.legend =  T, legend = "right",  labels = c("B", "C", "D", "E", "F", "G", "H"), label.x = 0.875, label.y = 0.28, align = "hv", heights = c(1,1), font.label = list(size = 12))
 
  # Annotate Figure by adding common "Effect Size" y-axis
-col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("Effect size O"[2]*" consumption rate (mg O"[2]*" kg"^-1*" H"^-1*")"^(1/3)), rot = 90, size = 12))
+col_scatter_ann = annotate_figure(col_scatter, left = text_grob(expression("O"[2]*" consumption effect size"^(1/3)*"(Median wet - median dry rate; mg O"[2]*" kg"^-1*" h"^-1*")"), rot = 90, size = 12))
+
+col_scatter_ann = annotate_figure(
+  col_scatter,
+  left = text_grob(
+    expression(
+      atop(
+        "O"[2] * " consumption effect size"^(1/3),
+        "(Median wet - median dry rate; mg O"[2] * " kg"^-1 * " h"^-1 * ")"
+      )
+    ),
+    rot = 90, size = 12
+  )
+)
 
 col_scatter_ann
 
@@ -663,20 +841,59 @@ image_write(whole_image, path = "./Figures/Scatter_Heat_Map.png", density = 300)
 
 d50 = read.csv("./Data/D50_Calculations.csv")
   
-effect_d50 = left_join(effect_data, d50, by = "Sample_Name")
+effect_d50 = left_join(effect_data, d50, by = "Sample_Name")%>% 
+  mutate(group = if_else(d50 <= 0.053, "clay", if_else(d50 >= 0.053 & d50 < 0.25, "silt", "sand"))) 
  
-d50_plot = ggplot(effect_d50, aes(x = round(d50, 2), y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) + 
-   geom_bar(width = 0.005, stat = "identity", aes(fill = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +
-  scale_fill_gradient2(name = "Effect Size", limits = c(-1400, 1400), low = "firebrick2", mid = "goldenrod2",
-                             high = "dodgerblue2", midpoint = (max(1400)+min(-1400))/2,
-                       #guide = guide_legend(theme = theme(legend.direction = "horizontal", legend.text.position = "bottom"))
-                       ) +
-   geom_vline(xintercept = 0.053, linetype = 2) + 
-   geom_vline(xintercept = 0.25, linetype = 2)+
-  ylab("Effect Size Respiration (mg/kg)") +
-  xlab("D50") +
-   theme_bw() + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+#original
+# d50_plot = ggplot(effect_d50, aes(x = round(d50, 2), y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) + 
+#   geom_bar(width = 0.005, stat = "identity", aes(fill = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +
+#   scale_fill_gradient2(name = "Effect Size", limits = c(-1400, 1400), low = "firebrick2", mid = "goldenrod2",
+#                        high = "dodgerblue2", midpoint = (max(1400)+min(-1400))/2,
+#                        #guide = guide_legend(theme = theme(legend.direction = "horizontal", legend.text.position = "bottom"))
+#   ) +
+#   geom_vline(xintercept = 0.053, linetype = 2) + 
+#   geom_vline(xintercept = 0.25, linetype = 2)+
+#   ylab("Effect Size Respiration (mg/kg)") +
+#   xlab("D50") +
+#   theme_bw() + 
+#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+# boxplots
+# #d50_plot = 
+#   ggplot(effect_d50) + 
+#     geom_boxplot(aes(x = group, y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))+
+#     geom_point(aes(x = group, y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H, color = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +
+#   #geom_bar(width = 0.005, stat = "identity", aes(fill = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +
+#   #scale_fill_gradient2(name = "Effect Size", limits = c(-1400, 1400), low = "firebrick2", mid = "goldenrod2",
+#                             # high = "dodgerblue2", midpoint = (max(1400)+min(-1400))/2,
+#                        #guide = guide_legend(theme = theme(legend.direction = "horizontal", legend.text.position = "bottom"))
+#                      #  ) +
+#   scale_color_gradient2(name = "Effect Size", limits = c(-1400, 1400), low = "firebrick2", mid = "goldenrod2",
+#                       high = "dodgerblue2", midpoint = (max(1400)+min(-1400))/2,
+#                       #guide = guide_legend(theme = theme(legend.direction = "horizontal", legend.text.position = "bottom"))
+#   ) +
+#    
+#    geom_vline(xintercept = 0.053, linetype = 2) + 
+#    geom_vline(xintercept = 0.25, linetype = 2)+
+#   ylab("Effect Size Respiration (mg/kg)") +
+#   xlab("D50") +
+#   theme_bw() + 
+#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  
+## Scatter Plot of D50 vs. Effect Size
+  d50_plot = ggplot(effect_d50) + 
+    geom_point(size = 2, aes(x = d50, y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +
+    geom_vline(xintercept = 0.053, linetype = 2, linewidth = 1) + 
+    geom_vline(xintercept = 0.25, linetype = 2, linewidth = 1)+
+    ylab(expression(
+      atop(
+        "O"[2] * " consumption effect size",
+        "(Median wet - median dry rate; mg O"[2] * " kg"^-1 * " h"^-1 * ")"
+      )
+    )) +
+    xlab("D50") +
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
 # ANOVA + Pairwise Tests for CLD Boxplots ---------------------------------
@@ -757,17 +974,18 @@ atp_cat = ggplot(effect_analysis, aes(x = category, y = Median_ATP_picomoles_per
 # Only ATP and FS for final model, other pairwise tests below
 
 ## Final Conceptual Figure?? ####
-d50_plot = d50_plot +
-  ylab(expression("Effect size O"[2]*" consumption rate (mg O"[2]*" kg"^-1*" H"^-1*")")) +
-  theme(axis.title.y = element_text(size = 10.5,
-                                    margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.title.x = element_text(size = 14), 
-        legend.key.size = unit(0.5, "cm"),
-        axis.text.x = element_text(size = 12), 
-        axis.text.y = element_text(size = 12), 
-        legend.position = c(0.9, 0.75))
+# d50_plot = d50_plot +
+#   ylab(expression(atop("O"[2]*" consumption effect size", "(Median wet - median dry rate; mg O  " [2]*" kg"^-1*" h"^-1*")"))) +
+#   theme(axis.title.y = element_text(size = 10.5,
+#                                     margin = margin(t = 0, r = 10, b = 0, l = 0)),
+#         axis.title.x = element_text(size = 14), 
+#         legend.key.size = unit(0.5, "cm"),
+#         axis.text.x = element_text(size = 12), 
+#         axis.text.y = element_text(size = 12), 
+#         legend.position = c(0.9, 0.75))
 
-d50_plot
+
+# d50_plot
 
 fs_cat = fs_cat + 
   theme(axis.title.y = element_text(size = 14,
@@ -789,7 +1007,7 @@ atp_cat_save = atp_cat +
 
 d50_box = ggarrange(d50_plot, labels = c("A"), nrow = 2, ggarrange(fs_cat, atp_cat_save, ncol = 2, widths = c(3,3), labels = c("B", "C"), hjust = -5, align = "h"))
 
-ggsave("./Figures/d50_boxes.png", width = 12, height = 9, plot = d50_box, dpi = 300)
+ggsave("./Figures/Figure_4.png", width = 12, height = 9, plot = d50_box, dpi = 300)
 
 ## Continue Pairwise Comparisons but didn't use these ####
 
