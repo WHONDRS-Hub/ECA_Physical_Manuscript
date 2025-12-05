@@ -1,0 +1,7 @@
+"Feature_Rank","Selected_Feature","Cluster_Represented","Permutation_Importance","Gini_Importance"
+4,"cube_Effect_Size_ATP_picomoles_per_g",4,0.333679375504247,11.0439300846356
+3,"cube_Effect_Size_Fe_mg_per_kg",3,0.197490264669354,10.4217672720829
+5,"cube_Effect_Size_C_percent_per_mg",5,0.176142929803624,7.59441374854124
+2,"cube_Effect_Size_N_percent_per_mg",2,0.115564352598634,6.29622639796216
+6,"cube_Median_Temperature_degC",6,0.0679026189530396,5.22391518651863
+1,"cube_Effect_Size_Extractable_TN_mg_per_kg",1,0.0379914058929401,3.51293922101009

@@ -1,0 +1,3 @@
+"Model","Training_R2","Test_R2","Num_Features"
+"Full Feature Set",0.917404525419021,0.669436506417463,26
+"Selected Features",0.919027144130484,0.49442574795491,6
