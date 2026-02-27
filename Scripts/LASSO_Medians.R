@@ -909,21 +909,28 @@ effect_d50 = left_join(effect_data, d50, by = "Sample_Name")%>%
 #   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   
 ## Scatter Plot of D50 vs. Effect Size
-  d50_plot = ggplot(effect_d50) + 
-    geom_point(size = 2, aes(x = d50, y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +
-    geom_vline(xintercept = 0.053, linetype = 2, linewidth = 1) + 
-    geom_vline(xintercept = 0.25, linetype = 2, linewidth = 1)+
-    ylab(expression(
-      atop(
-        "O"[2] * " consumption effect size",
-        "(Median wet - median dry rate; mg O"[2] * " kg"^-1 * " h"^-1 * ")"
-      )
-    )) +
-    xlab("D50") +
-    theme_bw() + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+d50_plot = ggplot(effect_d50) + 
+  geom_point(size = 3, aes(x = d50, y = Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +
+  geom_vline(xintercept = 0.053, linetype = 2, linewidth = 1) + 
+  geom_vline(xintercept = 0.25, linetype = 2, linewidth = 1) +
+  ylab(expression(
+    atop(
+      "O"[2] * " consumption effect size",
+      "(Median wet - median dry rate; mg O"[2] * " kg"^-1 * " h"^-1 * ")"
+    )
+  )) +
+  xlab("D50") +
+  labs (title = 'A') +
+  theme_bw(base_size = 16) +  
+  theme(plot.title = element_text(face = "bold")) +
+  theme(
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    axis.text.x  = element_text(size = 14, angle = 90, vjust = 0.5, hjust = 1),
+    axis.text.y  = element_text(size = 14)
+  )
 
-
+d50_plot = d50_plot + theme(plot.margin = margin(6, 6, 6, 12))
 # ANOVA + Pairwise Tests for CLD Boxplots ---------------------------------
 
 effect_analysis = effect_d50 %>% 
@@ -983,22 +990,27 @@ effect_analysis$cld_atp = cld_atp$Letters[match(effect_analysis$category, rownam
 
 ## Parametric Boxplots
 
-fs_cat = ggplot(effect_analysis, aes(x = category, y = Percent_Fine_Sand,  fill = category)) +
+fs_cat = ggplot(effect_analysis, aes(x = category, y = Percent_Fine_Sand, fill = category)) +
   geom_boxplot() +
-  geom_text(aes(label = cld_fs, y = 85)) + 
+  geom_text(aes(label = cld_fs, y = Inf), vjust = 1.2, size = 4) +  
+  coord_cartesian(clip = "off") +                                  
   theme_bw() +
-  ylab("Fine Sand (%)") + 
+  ylab("Fine Sand (%)") +
   xlab("") +
+  labs (title = 'B') +
+  theme_bw(base_size = 16) +  
   theme(legend.title = element_blank())
 
-atp_cat = ggplot(effect_analysis, aes(x = category, y = Median_ATP_picomoles_per_g,  fill = category)) +
+atp_cat = ggplot(effect_analysis, aes(x = category, y = Median_ATP_picomoles_per_g, fill = category)) +
   geom_boxplot() +
-  geom_text(aes(label = cld_atp, y = 325))+ 
+  geom_text(aes(label = cld_atp, y = Inf), vjust = 1.2, size = 4) +  
+  coord_cartesian(clip = "off") +                                   
   theme_bw() +
-  ylab(expression("ATP (pmol g"^-1*")")) + 
+  ylab(expression("ATP (pmol g"^-1*")")) +
   xlab("") +
+  labs (title = 'C') +
+  theme_bw(base_size = 16) +  
   theme(legend.title = element_blank())
-
 # Only ATP and FS for final model, other pairwise tests below
 
 ## Final Conceptual Figure?? ####
@@ -1016,26 +1028,30 @@ atp_cat = ggplot(effect_analysis, aes(x = category, y = Median_ATP_picomoles_per
 # d50_plot
 
 fs_cat = fs_cat + 
-  theme(axis.title.y = element_text(size = 14,
-                                    margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.title.x = element_text(size = 14),
-        axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12),
-        legend.position = "none", aspect.ratio = 1,
-        plot.margin = unit(c(0, -1, 0, 0), "cm")) 
+  theme(plot.title = element_text(face = "bold")) +
+  theme(
+    axis.title.y = element_text(size = 14, margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    axis.title.x = element_text(size = 14),
+    axis.text.y  = element_text(size = 14),
+    axis.text.x  = element_text(size = 12),
+    legend.position = "none",
+    aspect.ratio = 1,
+    plot.margin = margin(6, 6, 6, 6)
+  )
 
 atp_cat_save = atp_cat +
+  theme(plot.title = element_text(face = "bold")) +
   theme(axis.title.y = element_text(size = 14,
                                     margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(size = 14),
-        axis.text.y = element_text(size = 12),
+        axis.text.y = element_text(size = 14),
         axis.text.x = element_text(size = 12),legend.position = "none", aspect.ratio = 1,
-        plot.margin = unit(c(0, 0, 0, -1), "cm"))
+        plot.margin = margin(6, 6, 6, 6))
 
-
-d50_box = ggarrange(d50_plot, labels = c("A"), nrow = 2, ggarrange(fs_cat, atp_cat_save, ncol = 2, widths = c(3,3), labels = c("B", "C"), hjust = -5, align = "h"))
-
-ggsave("./Figures/Figure_4.png", width = 12, height = 9, plot = d50_box, dpi = 300)
+d50_box = ggarrange(d50_plot, nrow = 2,
+                    ggarrange(fs_cat, atp_cat_save, ncol = 2, widths = c(3,3),
+                               hjust = -5, align = "h"))
+ggsave("./Figures/Figure_4_v2.png", width = 12, height = 9, plot = d50_box, dpi = 600)
 
 ## Continue Pairwise Comparisons but didn't use these ####
 
