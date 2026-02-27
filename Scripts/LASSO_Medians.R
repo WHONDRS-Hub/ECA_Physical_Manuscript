@@ -930,7 +930,7 @@ d50_plot = ggplot(effect_d50) +
     axis.text.y  = element_text(size = 14)
   )
 
-d50_plot = d50_plot + theme(plot.margin = margin(6, 6, 6, 12))
+#d50_plot = d50_plot + theme(plot.margin = margin(6, 6, 6, 12))
 # ANOVA + Pairwise Tests for CLD Boxplots ---------------------------------
 
 effect_analysis = effect_d50 %>% 
@@ -992,7 +992,7 @@ effect_analysis$cld_atp = cld_atp$Letters[match(effect_analysis$category, rownam
 
 fs_cat = ggplot(effect_analysis, aes(x = category, y = Percent_Fine_Sand, fill = category)) +
   geom_boxplot() +
-  geom_text(aes(label = cld_fs, y = Inf), vjust = 1.2, size = 4) +  
+  geom_text(aes(label = cld_fs, y = Inf), vjust = 1.2, size = 5) +  
   coord_cartesian(clip = "off") +                                  
   theme_bw() +
   ylab("Fine Sand (%)") +
@@ -1003,7 +1003,7 @@ fs_cat = ggplot(effect_analysis, aes(x = category, y = Percent_Fine_Sand, fill =
 
 atp_cat = ggplot(effect_analysis, aes(x = category, y = Median_ATP_picomoles_per_g, fill = category)) +
   geom_boxplot() +
-  geom_text(aes(label = cld_atp, y = Inf), vjust = 1.2, size = 4) +  
+  geom_text(aes(label = cld_atp, y = Inf), vjust = 1.2, size = 5) +  
   coord_cartesian(clip = "off") +                                   
   theme_bw() +
   ylab(expression("ATP (pmol g"^-1*")")) +
@@ -1036,7 +1036,7 @@ fs_cat = fs_cat +
     axis.text.x  = element_text(size = 12),
     legend.position = "none",
     aspect.ratio = 1,
-    plot.margin = margin(6, 6, 6, 6)
+    plot.margin = unit(c(0, -1, 0, 0), "cm")
   )
 
 atp_cat_save = atp_cat +
@@ -1046,12 +1046,13 @@ atp_cat_save = atp_cat +
         axis.title.x = element_text(size = 14),
         axis.text.y = element_text(size = 14),
         axis.text.x = element_text(size = 12),legend.position = "none", aspect.ratio = 1,
-        plot.margin = margin(6, 6, 6, 6))
+        plot.margin = unit(c(0, -1, 0, 0), "cm"))
 
 d50_box = ggarrange(d50_plot, nrow = 2,
                     ggarrange(fs_cat, atp_cat_save, ncol = 2, widths = c(3,3),
                                hjust = -5, align = "h"))
 ggsave("./Figures/Figure_4_v2.png", width = 12, height = 9, plot = d50_box, dpi = 600)
+ggsave("./Figures/Figure_4_v2.pdf", width = 12, height = 9, plot = d50_box, dpi = 600)
 
 ## Continue Pairwise Comparisons but didn't use these ####
 
