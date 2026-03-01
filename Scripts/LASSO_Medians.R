@@ -58,15 +58,19 @@ median_respiration = all_data %>%
   ungroup()
 
 ## Look at CV by Site, Wet vs. Dry
+
+q_probs <- c(0.25, 0.75)
+
 cv_site_rep_respiration = all_data %>% 
-  select(-c(Respiration_R_Squared, Respiration_R_Squared_Adj, Respiration_p_value, Total_Incubation_Time_Min, Number_Points_In_Respiration_Regression, Number_Points_Removed_Respiration_Regression,DO_Concentration_At_Incubation_Time_Zero)) %>% 
-  mutate(across(c(SpC_microsiemens_per_cm:Respiration_Rate_mg_DO_per_kg_per_H), as.numeric)) %>% 
+  select(c(Sample_Name, Respiration_Rate_mg_DO_per_L_per_H,Respiration_Rate_mg_DO_per_kg_per_H, Methods_Deviation)) %>% 
+  #select(-c(Respiration_R_Squared, Respiration_R_Squared_Adj, Respiration_p_value, Total_Incubation_Time_Min, Number_Points_In_Respiration_Regression, Number_Points_Removed_Respiration_Regression,DO_Concentration_At_Incubation_Time_Zero)) %>% 
+  mutate(across(c(Respiration_Rate_mg_DO_per_L_per_H:Respiration_Rate_mg_DO_per_kg_per_H), as.numeric)) %>% 
   mutate(Respiration_Rate_mg_DO_per_L_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_L_per_H)) %>% 
   #missing replicates (EC_072-W5/D5),  overexposed samples (EC_027, EC_013, EC_014), less sediment in sample (EC_012-D5)
   mutate(Respiration_Rate_mg_DO_per_kg_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_kg_per_H)) %>% #missing replicates (EC_072-W5/D5),  overexposed samples (EC_027, EC_013, EC_014), less sediment in sample (EC_012-D5)
-  mutate(SpC_microsiemens_per_cm = ifelse(grepl("INC_Method_001|INC_Method_002", Methods_Deviation), NA, SpC_microsiemens_per_cm)) %>% 
-  mutate(pH = ifelse(grepl("INC_Method_001|INC_Method_002", Methods_Deviation), NA, pH)) %>% 
-  mutate(Temperature_degC = ifelse(grepl("INC_Method_001|INC_Method_002", Methods_Deviation), NA, Temperature_degC)) %>% 
+  #mutate(SpC_microsiemens_per_cm = ifelse(grepl("INC_Method_001|INC_Method_002", Methods_Deviation), NA, SpC_microsiemens_per_cm)) %>% 
+  #mutate(pH = ifelse(grepl("INC_Method_001|INC_Method_002", Methods_Deviation), NA, pH)) %>% 
+  #mutate(Temperature_degC = ifelse(grepl("INC_Method_001|INC_Method_002", Methods_Deviation), NA, Temperature_degC)) %>% 
   mutate(Respiration_Rate_mg_DO_per_kg_per_H = ifelse(Respiration_Rate_mg_DO_per_kg_per_H == "-9999", NA, Respiration_Rate_mg_DO_per_kg_per_H)) %>% 
   separate(Sample_Name, c("Sample_ID", "Rep"), sep = "-") %>% 
   mutate(Rep = if_else(grepl("D", Rep), "D", "W")) %>%
@@ -74,15 +78,35 @@ cv_site_rep_respiration = all_data %>%
   summarise(across(where(is.numeric),
                    list(Median = ~median(.x, na.rm = TRUE),
                         cv = ~sd(.x, na.rm = TRUE)/mean(.x, na.rm =TRUE),
-                        n = ~sum(!is.na(.x))), 
+                        n = ~sum(!is.na(.x)), 
+                        qcd      = ~{
+                          q <- quantile(.x, probs = c(0.25, 0.75), na.rm = TRUE)
+                          (q[2] - q[1]) / (q[2] + q[1])
+                        },
+                        robust_cv = ~mad(.x, center = median(.x, na.rm = TRUE), 
+                                         constant = 1, na.rm = TRUE) / 
+                          median(.x, na.rm = TRUE)
+                   ), 
                    .names = "{.fn}_{.col}")) %>% 
   ungroup()
 
-# cv_site_rep_respiration %>% 
+
+
 #   filter(Median_Respiration_Rate_mg_DO_per_kg_per_H > -50) %>% 
 ggplot(cv_site_rep_respiration, aes(y = cv_Respiration_Rate_mg_DO_per_kg_per_H, 
         x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
   geom_point()
+
+ggplot(cv_site_rep_respiration, aes(y = qcd_Respiration_Rate_mg_DO_per_kg_per_H, 
+                                    x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
+  geom_point()
+
+ggplot(cv_site_rep_respiration, aes(y = robust_cv_Respiration_Rate_mg_DO_per_kg_per_H, 
+                                    x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
+  geom_point()
+
+
+
 
 ## SI Figure Respiration Rate (mg/L) by R2 for "real" rates####
 
