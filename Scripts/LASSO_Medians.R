@@ -84,6 +84,43 @@ ggplot(cv_site_rep_respiration, aes(y = cv_Respiration_Rate_mg_DO_per_kg_per_H,
         x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
   geom_point()
 
+## SI Figure Respiration Rate (mg/L) by R2 for "real" rates####
+
+rsq = all_data %>% 
+  select(c(Sample_Name, Respiration_Rate_mg_DO_per_L_per_H, Respiration_Rate_mg_DO_per_kg_per_H, Respiration_R_Squared, Methods_Deviation)) %>% 
+  mutate(Respiration_Rate_mg_DO_per_L_per_H = abs(as.numeric(Respiration_Rate_mg_DO_per_L_per_H))) %>% 
+  mutate(Respiration_Rate_mg_DO_per_kg_per_H = abs(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H))) %>% 
+  mutate(Respiration_R_Squared = as.numeric(Respiration_R_Squared)) %>% 
+  filter(Respiration_R_Squared != -9999) %>% 
+  mutate(Respiration_Rate_mg_DO_per_L_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_L_per_H)) %>% 
+  #missing replicates (EC_072-W5/D5),  overexposed samples (EC_027, EC_013, EC_014), less sediment in sample (EC_012-D5)
+  mutate(Respiration_Rate_mg_DO_per_kg_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_kg_per_H)) #missing replicates (EC_072-W5/D5),  overexposed samples (EC_027, EC_013, EC_014), less sediment in sample (EC_012-D5)
+
+
+rsq_vs_mg_L = 
+  ggplot(rsq, aes (x = Respiration_Rate_mg_DO_per_L_per_H, y = Respiration_R_Squared)) +
+  geom_point() +
+  theme_bw() + 
+  ylab(expression("R"^2*" O"[2] * " consumption rate (mg O"[2] * " L"^-1*" h"^-1 * ")")) +
+  xlab(expression("O"[2] *" consumption rate (mg O"[2] * " L"^-1*" h"^-1 * ")")) 
+
+
+ggsave("./Figures/SI_RSq_vs_Rate_mg_per_L.png", plot = rsq_vs_mg_L, width = 6, height = 6, dpi = 300)
+ggsave("./Figures/SI_RSq_vs_Rate_mg_per_L.pdf", plot = rsq_vs_mg_L, width = 6, height = 6, dpi = 300)
+
+
+rsq_vs_mg_kg = 
+  ggplot(rsq, aes (x = Respiration_Rate_mg_DO_per_kg_per_H, y = Respiration_R_Squared)) +
+  geom_point() +
+  theme_bw() + 
+  ylab(expression("R"^2*" O"[2] * " consumption rate (mg O"[2] * " kg"^-1*" h"^-1 * ")")) +
+  xlab(expression("O"[2] *" consumption rate (mg O"[2] * " kg"^-1*" h"^-1 * ")")) 
+
+
+ggsave("./Figures/SI_RSq_vs_Rate_mg_per_kg.png", plot = rsq_vs_mg_kg, width = 6, height = 6, dpi = 300)
+ggsave("./Figures/SI_RSq_vs_Rate_mg_per_kg.pdf", plot = rsq_vs_mg_kg, width = 6, height = 6, dpi = 300)
+
+
 
 ## Calculate "bulk" medians (not separated by wet/dry) ---------------------
 
