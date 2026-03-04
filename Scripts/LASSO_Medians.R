@@ -428,7 +428,7 @@ corr_effect_df = as.data.frame(corr_effect) %>%
 all_cube_variables = cube_effect %>% 
   select(-c(cube_Percent_Silt)) #%>% 
  # filter(complete.cases(.)) # this icon addition
-
+write.csv(all_cube_variables, "./Data/all_cube_variables_used_in_Lasso.csv") # write out for ICON test
 ## This data frame can be used to test non-cube root transformed data in LASSO
 # all_variables = effect_data %>%
 #   select(-c(Percent_Silt, Effect_Size_ATP_nanomoles_per_L, Effect_Size_Respiration_Rate_mg_DO_per_L_per_H, Effect_Size_Fe_mg_per_L, Effect_Size_Extractable_NPOC_mg_per_L, Effect_Size_Extractable_TN_mg_per_L, Median_ATP_nanomoles_per_L, Median_Fe_mg_per_L, Median_Extractable_NPOC_mg_per_L, Median_Extractable_TN_mg_per_L)) %>%
