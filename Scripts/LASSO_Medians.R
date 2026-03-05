@@ -405,6 +405,7 @@ effect_hist = ggplot(effect_data, aes(x = Effect_Size_Respiration_Rate_mg_DO_per
         axis.title.x = element_text(size = 10)) + 
   xlab(expression(atop("\n Effect Size Respiration Rate","(Median Wet - Median Dry Rate; mg O"[2]*" kg"^-1*" h"^-1*")")))
 
+
 effect_hist
 
 combined_SI_hist = ggarrange(all_hist, effect_hist, ncol = 2, labels = c("A", "B"), hjust = -1, vjust = 2.5)
