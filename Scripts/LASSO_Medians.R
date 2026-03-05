@@ -29,7 +29,7 @@ all_data = read.csv("./Data/EC_Sediment_SpC_pH_Temp_Respiration.csv", skip = 2) 
 cube_respiration = all_data %>% 
   select(c(Sample_Name, Respiration_Rate_mg_DO_per_kg_per_H)) %>% 
   filter(Respiration_Rate_mg_DO_per_kg_per_H != -9999) %>% # removes overexposed samples, missing replicates
-  mutate(cube_Respiration_mg_kg = cube_root(abs(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)))) %>% # make respiration positive and cube root
+  mutate(cube_Respiration_mg_kg = cube_root((as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)*-1))) %>% # make respiration positive and cube root
   mutate(Treat = if_else(grepl("D", Sample_Name), "Dry", "Wet"))
 
 # Calculate "bulk" medians (not separated by wet/dry)
@@ -112,8 +112,8 @@ ggplot(cv_site_rep_respiration, aes(y = robust_cv_Respiration_Rate_mg_DO_per_kg_
 
 rsq = all_data %>% 
   select(c(Sample_Name, Respiration_Rate_mg_DO_per_L_per_H, Respiration_Rate_mg_DO_per_kg_per_H, Respiration_R_Squared, Methods_Deviation)) %>% 
-  mutate(Respiration_Rate_mg_DO_per_L_per_H = abs(as.numeric(Respiration_Rate_mg_DO_per_L_per_H))) %>% 
-  mutate(Respiration_Rate_mg_DO_per_kg_per_H = abs(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H))) %>% 
+  mutate(Respiration_Rate_mg_DO_per_L_per_H = (as.numeric(Respiration_Rate_mg_DO_per_L_per_H)*-1)) %>% 
+  mutate(Respiration_Rate_mg_DO_per_kg_per_H = (as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)*-1)) %>% 
   mutate(Respiration_R_Squared = as.numeric(Respiration_R_Squared)) %>% 
   filter(Respiration_R_Squared != -9999) %>% 
   mutate(Respiration_Rate_mg_DO_per_L_per_H = ifelse(grepl("INC_Method_001|INC_Method_002|INC_QA_004", Methods_Deviation), NA, Respiration_Rate_mg_DO_per_L_per_H)) %>% 
@@ -337,8 +337,8 @@ effect_data = left_join(effect, grain, by = "Sample_Name") %>%
     select(-c(Effect_Size_Initial_Gravimetric_Moisture_g_per_g, Effect_Size_Final_Gravimetric_Moisture_g_per_g, Median_Respiration_Rate_mg_DO_per_L_per_H, Median_Respiration_Rate_mg_DO_per_kg_per_H)) %>% 
   rename(median_Dry_Initial_Gravimetric = median_Initial_Gravimetric) %>% 
   rename(median_Dry_Final_Gravimetric = median_Final_Gravimetric) %>% 
-  mutate(Effect_Size_Respiration_Rate_mg_DO_per_L_per_H = abs(Effect_Size_Respiration_Rate_mg_DO_per_L_per_H)) %>% 
-  mutate(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = abs(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
+  mutate(Effect_Size_Respiration_Rate_mg_DO_per_L_per_H = (Effect_Size_Respiration_Rate_mg_DO_per_L_per_H)*-1) %>% 
+  mutate(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = (Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)*-1)
   
 # Transform Data ----------------------------------------------------------
 
@@ -375,7 +375,7 @@ fe_effect_data = effect_data %>%
 all_hist = all_data %>% 
   filter(Respiration_Rate_mg_DO_per_kg_per_H != -9999) %>% # removes overexposed samples, missing replicates
   mutate(Treat = if_else(grepl("D", Sample_Name), "Dry", "Wet")) %>% 
-  ggplot(aes(x = abs(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)))) +
+  ggplot(aes(x = (as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)*-1))) +
   geom_histogram(position = "identity", alpha = 0.8, aes(fill = Treat))+
   scale_fill_manual(values = c("#D55E00","#0072B2"))  +
   theme(strip.text = element_text(
