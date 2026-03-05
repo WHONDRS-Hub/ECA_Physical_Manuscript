@@ -59,8 +59,6 @@ median_respiration = all_data %>%
 
 ## Look at CV by Site, Wet vs. Dry
 
-q_probs <- c(0.25, 0.75)
-
 cv_site_rep_respiration = all_data %>% 
   select(c(Sample_Name, Respiration_Rate_mg_DO_per_L_per_H,Respiration_Rate_mg_DO_per_kg_per_H, Methods_Deviation)) %>% 
   #select(-c(Respiration_R_Squared, Respiration_R_Squared_Adj, Respiration_p_value, Total_Incubation_Time_Min, Number_Points_In_Respiration_Regression, Number_Points_Removed_Respiration_Regression,DO_Concentration_At_Incubation_Time_Zero)) %>% 
@@ -92,19 +90,28 @@ cv_site_rep_respiration = all_data %>%
 
 
 
+# Also tried to calculate QCD and CV for these. Ended up choosing Robust CV for SI figures
 #   filter(Median_Respiration_Rate_mg_DO_per_kg_per_H > -50) %>% 
-ggplot(cv_site_rep_respiration, aes(y = cv_Respiration_Rate_mg_DO_per_kg_per_H, 
-        x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
-  geom_point()
+# ggplot(cv_site_rep_respiration, aes(y = cv_Respiration_Rate_mg_DO_per_kg_per_H, 
+#         x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
+#   geom_point()
+# 
+# ggplot(cv_site_rep_respiration, aes(y = qcd_Respiration_Rate_mg_DO_per_kg_per_H, 
+#                                     x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
+#   geom_point()
 
-ggplot(cv_site_rep_respiration, aes(y = qcd_Respiration_Rate_mg_DO_per_kg_per_H, 
-                                    x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
-  geom_point()
 
-ggplot(cv_site_rep_respiration, aes(y = robust_cv_Respiration_Rate_mg_DO_per_kg_per_H, 
-                                    x = Median_Respiration_Rate_mg_DO_per_kg_per_H)) +
-  geom_point()
+rCV_vs_mg_kg = 
+  cv_site_rep_respiration %>% 
+  mutate(cube_Median_Respiration_mg_kg = cube_root(abs(as.numeric(Median_Respiration_Rate_mg_DO_per_kg_per_H)))) %>% # make respiration positive and cube root
+  ggplot(aes(y = robust_cv_Respiration_Rate_mg_DO_per_kg_per_H, 
+             x = cube_Median_Respiration_mg_kg)) +
+  geom_point() +
+  theme_bw() +
+  ylab(expression(atop("Robust Coefficient of Variation", "Median O"[2] *" consumption rate (mg O"[2] * " kg"^-1*" h"^-1 * ")"))) +
+  xlab(expression(atop("Median O"[2] *" consumption rate" ^(1/3)*"", "(mg O"[2] * " kg"^-1*" h"^-1 * ")"))) 
 
+ggsave("./Figures/SI_rCV_vs_Rate_mg_per_kg.png", plot = rCV_vs_mg_kg, width = 6, height = 6, dpi = 300)
 
 
 
