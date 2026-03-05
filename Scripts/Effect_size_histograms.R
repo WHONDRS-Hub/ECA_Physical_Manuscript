@@ -15,7 +15,9 @@ all_data = read.csv("Data/EC_Sediment_SpC_pH_Temp_Respiration.csv", skip = 2) %>
 ev_data = read.csv("Data/WHONDRS_EV_Data_Package/Sample_Data/WHONDRS_EV_Sediment_SpC_pH_Temp_Respiration.csv", skip = 2) %>%
   filter(grepl("EV", Sample_Name)) %>%
   select(-c(Field_Name, IGSN, Material))
-all_data = rbind(all_data, ev_data)
+all_data = rbind(all_data, ev_data) 
+all_data = all_data %>%
+  mutate(Respiration_Rate_mg_DO_per_kg_per_H = (as.numeric(Respiration_Rate_mg_DO_per_kg_per_H))*-1)
 
 # Reading in metadata from both files to get river type
 metadata = read.csv("Data/EC_Field_Metadata.csv") %>%
@@ -38,12 +40,12 @@ effect = read.csv("Data/EC_Sediment_Effect_Size.csv", skip = 2) %>%
   filter(grepl("EC", Sample_Name)) %>%
   filter(!grepl("EC_011|EC_012|EC_023|EC_052|EC_053|EC_057", Sample_Name)) %>%
   select(c(Sample_Name, Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) %>%
-  mutate(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = as.numeric(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
+  mutate(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = (as.numeric(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))*-1)
 
 effect_ev = read.csv("Data/WHONDRS_EV_Data_Package/Sample_Data/WHONDRS_EV_Sediment_Effect_Size.csv", skip = 2) %>%
   filter(grepl("EV", Sample_Name)) %>%
   select(c(Sample_Name, Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = Effect_Size_Median_Respiration_Rate_mg_DO_per_kg_per_H)) %>%
-  mutate(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = as.numeric(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
+  mutate(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = (as.numeric(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))*-1)
 
 effect = rbind(effect, effect_ev)
 
@@ -56,9 +58,9 @@ print("Effect size data with metadata:")
 print(head(effect_with_metadata %>% select(Sample_Name, Parent_ID, Intermittent_or_Perennial)))
 print(paste("Number of intermittent sites in effect data:", sum(effect_with_metadata$Intermittent_or_Perennial == "Intermittent", na.rm = TRUE)))
 
-#  Filter to only keep sites with NEGATIVE effect size (excluding positive effect sizes due to uncertainty in the calculation of the rates)
+#  Filter to only keep sites with positive effect size (excluding negative effect sizes due to uncertainty in the calculation of the rates)
 sites_with_negative_effect = effect_with_metadata %>%
-  filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H <= 0) %>%
+  filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H >= 0) %>%
   pull(Parent_ID)
 
 print(paste("Number of sites with negative effect size:", length(sites_with_negative_effect)))
@@ -73,11 +75,10 @@ print(paste("Number of samples BEFORE filtering:", nrow(all_data_with_metadata))
 
 # Get O2 consumption rate values for intermittent sites (from filtered data)
 intermittent_o2_values = all_data_filtered %>%
-  filter(Respiration_Rate_mg_DO_per_kg_per_H != -9999) %>%
+  filter(Respiration_Rate_mg_DO_per_kg_per_H != 9999) %>%
   filter(Intermittent_or_Perennial == "Intermittent", !is.na(Intermittent_or_Perennial)) %>%
   pull(Respiration_Rate_mg_DO_per_kg_per_H) %>%
-  as.numeric() %>%
-  abs()
+  as.numeric() 
 
 print("Intermittent O2 consumption rate values (filtered):")
 print(intermittent_o2_values)
@@ -85,8 +86,8 @@ print(intermittent_o2_values)
 # Take Cube root of all respiration rates for figure (from filtered data)
 cube_respiration = all_data_filtered %>%
   select(c(Sample_Name, Respiration_Rate_mg_DO_per_kg_per_H, Parent_ID, Intermittent_or_Perennial)) %>%
-  filter(Respiration_Rate_mg_DO_per_kg_per_H != -9999) %>%
-  mutate(cube_Respiration_mg_kg = cube_root(abs(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)))) %>%
+  filter(Respiration_Rate_mg_DO_per_kg_per_H != 9999) %>%
+  mutate(cube_Respiration_mg_kg = cube_root((as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)))) %>%
   mutate(Treat = if_else(grepl("D", Sample_Name), "Dry", "Wet"))
 
 # Get cube root O2 consumption rate values for intermittent sites BY TREATMENT
@@ -104,27 +105,24 @@ vlines_cube_o2_by_treatment = intermittent_cube_o2_by_treatment %>%
 
 # Get effect size values for intermittent sites (already filtered to negative)
 intermittent_effect_values = effect_with_metadata %>%
-  filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H <= 0) %>%  # Changed to <= to match filtering above
+  filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H >= 0) %>%  # Changed to => to match filtering above
   filter(Intermittent_or_Perennial == "Intermittent", !is.na(Intermittent_or_Perennial)) %>%
   pull(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)
 
 print("Intermittent effect size values:")
 print(intermittent_effect_values)
 
-# Cube root transform effect size data (only negative effect sizes)
-# **CHANGED: Add absolute value column for plotting**
+# Cube root transform effect size data 
 cube_effect = effect_with_metadata %>%
-  filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H <= 0) %>%  # Ensure negative
-  mutate(cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = cube_root(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H),
-         abs_cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = abs(cube_root(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)))
+  filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H >= 0) %>%  # Changed the sign here
+  mutate(cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = cube_root(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
 
 # Get cube root effect size values for intermittent sites
-# **CHANGED: Get absolute values for vertical lines**
 intermittent_cube_effect_values = cube_effect %>%
   filter(Intermittent_or_Perennial == "Intermittent", !is.na(Intermittent_or_Perennial)) %>%
-  pull(abs_cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)
+  pull(cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)
 
-print("Intermittent cube root effect size values (absolute):")
+print("Intermittent cube root effect size values:")
 print(intermittent_cube_effect_values)
 
 # Create data frames for vertical lines (for legend purposes)
@@ -133,9 +131,8 @@ vlines_o2 = data.frame(
   line_type = "Intermittent sites"
 )
 
-# **CHANGED: Use absolute values for effect size vertical lines**
 vlines_effect = data.frame(
-  xintercept = abs(intermittent_effect_values),
+  xintercept = (intermittent_effect_values),
   line_type = "Intermittent sites"
 )
 
@@ -147,9 +144,9 @@ vlines_cube_effect = data.frame(
 # Histograms --------------------------------------------------------------
 ## Histogram of all O2 consumption rates WITH VERTICAL LINES FOR INTERMITTENT SITES
 all_hist = all_data_filtered %>%  # **CHANGED: Use filtered data**
-  filter(Respiration_Rate_mg_DO_per_kg_per_H != -9999) %>%
+  filter(Respiration_Rate_mg_DO_per_kg_per_H != 9999) %>%
   mutate(Treat = if_else(grepl("D", Sample_Name), "Dry", "Wet")) %>%
-  ggplot(aes(x = abs(as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)))) +
+  ggplot(aes(x = (as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)))) +
   geom_histogram(position = "identity", alpha = 0.8, aes(fill = Treat)) +
   scale_fill_manual(values = c("#D55E00","#0072B2")) +
   scale_linetype_manual(name = "", values = c("Intermittent sites" = "dashed")) +
@@ -168,9 +165,8 @@ all_hist = all_data_filtered %>%  # **CHANGED: Use filtered data**
   ylab("Count")
 
 ## Effect size histogram WITH VERTICAL LINES FOR INTERMITTENT SITES
-## **CHANGED: Plot absolute values**
-effect_limits <- c(0, 1400)  # Changed to start at 0 since we're plotting absolute values
-effect_hist = ggplot(cube_effect, aes(x = abs(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))) +
+effect_limits <- c(0, 1400)  # Changed to start at 0 
+effect_hist = ggplot(cube_effect, aes(x = (Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))) +
   geom_histogram(binwidth = 25, aes(fill = after_stat(x))) +
   # Add vertical lines for each intermittent site's effect size value
   {if(length(intermittent_effect_values) > 0)
@@ -195,7 +191,6 @@ effect_hist = ggplot(cube_effect, aes(x = abs(Effect_Size_Respiration_Rate_mg_DO
 combined_SI_hist = ggarrange(all_hist, effect_hist, ncol = 2, labels = c("A", "B"), hjust = -1, vjust = 2.5)
 ggsave("Figures/Combined_SI_Histograms.png", plot = combined_SI_hist, width = 10, height = 5, dpi = 300)
 
-## **NEW: Cube Root Transformed histogram with COLORED LINES by treatment**
 all_cube_hist = ggplot(cube_respiration, aes(x = cube_Respiration_mg_kg)) +
   geom_histogram(position = "identity", alpha = 0.8, aes(fill = Treat)) +
   # Add vertical lines for each intermittent site's cube root O2 consumption rate BY TREATMENT
@@ -223,9 +218,8 @@ all_cube_hist = ggplot(cube_respiration, aes(x = cube_Respiration_mg_kg)) +
   ylab("Count")
 
 # Cube root effect size histogram WITH VERTICAL LINES FOR INTERMITTENT SITES
-## **CHANGED: x-axis from -10 to 10 BUT plotting absolute values (so bars only on positive side)**
-cube_effect_limits <- c(0, 10)  # **Limits for color scale based on absolute values**
-cube_effect_hist = ggplot(cube_effect, aes(x = abs_cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +  # **Plot absolute values**
+cube_effect_limits <- c(0, 10)  
+cube_effect_hist = ggplot(cube_effect, aes(x = cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) +  # **Plot absolute values**
   geom_histogram(binwidth = 0.5, aes(fill = after_stat(x))) +
   # Add vertical lines for each intermittent site's cube root effect size value
   {if(length(intermittent_cube_effect_values) > 0)
@@ -255,14 +249,6 @@ ggsave("Figures/Combined_Cube_Histograms.pdf", plot = combined_hist, width = 10,
 
 ####################################################################
 # Two-panel figure: (A) untransformed rates, (B) cube-root transformed rates
-# Color = ABS(cube-root effect size), with the SAME colors as Figure 1 histogram:
-#   blue   = "dodgerblue2"
-#   yellow = "goldenrod2"
-# And with your requested anchors:
-#   0  -> yellow
-#   10 -> blue
-# Values outside [0,10] are squished to the ends.
-
 library(ggpubr)
 library(dplyr)
 library(tidyr)
@@ -271,7 +257,7 @@ library(scales)
 
 # --- Build site-level paired (median) treatment rates ---
 site_treat_rates <- all_data_filtered %>%
-  filter(Respiration_Rate_mg_DO_per_kg_per_H != -9999) %>%
+  filter(Respiration_Rate_mg_DO_per_kg_per_H != 9999) %>%
   mutate(
     Treat = if_else(grepl("D", Sample_Name), "Dry", "Wet"),
     Rate  = as.numeric(Respiration_Rate_mg_DO_per_kg_per_H)
@@ -305,12 +291,9 @@ scatter_df <- site_treat_rates %>%
   left_join(site_effects, by = c("Parent_ID", "Intermittent_or_Perennial")) %>%
   filter(!is.na(Effect_Size))
 
-# Optional: match your negative-only filtering used elsewhere
-# scatter_df <- scatter_df %>% filter(Effect_Size <= 0)
 
 # --- Color scale to MATCH Figure 1 histogram palette ---
 # Histogram used: low="dodgerblue2", mid="goldenrod2", high="firebrick2"
-# For ABS scale with your anchors: 0 = goldenrod2 (yellow), 10 = dodgerblue2 (blue)
 col_scale_abs <- scale_color_gradient(
   name = "cube-root\nEffect Size",
   low = "goldenrod2",      # 0
@@ -370,7 +353,7 @@ two_panel_scatter <- ggarrange(
   common.legend = FALSE
 )
 
-ggsave("Figures/SI_TwoPanel_Scatter_Untransformed_vs_CubeRates_ABS_EffectColor_Fig1Colors_0yellow_10blue.png",
+ggsave("Figures/SI_TwoPanel_Scatter_Untransformed_vs_CubeRates_EffectColor_Fig1Colors_0yellow_10blue.png",
        plot = two_panel_scatter, width = 12, height = 5.5, dpi = 300)
-ggsave("Figures/SI_TwoPanel_Scatter_Untransformed_vs_CubeRates_ABS_EffectColor_Fig1Colors_0yellow_10blue.pdf",
+ggsave("Figures/SI_TwoPanel_Scatter_Untransformed_vs_CubeRates_EffectColor_Fig1Colors_0yellow_10blue.pdf",
        plot = two_panel_scatter, width = 12, height = 5.5)
