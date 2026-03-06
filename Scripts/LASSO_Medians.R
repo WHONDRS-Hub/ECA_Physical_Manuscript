@@ -108,7 +108,7 @@ rCV_vs_mg_kg =
              x = cube_Median_Respiration_mg_kg)) +
   geom_point() +
   theme_bw() +
-  ylab(expression(atop("Robust Coefficient of Variation", "Median O"[2] *" consumption rate (mg O"[2] * " kg"^-1*" h"^-1 * ")"))) +
+  ylab(expression(atop("Robust Coefficient of Variation", "O"[2] *" consumption rate (mg O"[2] * " kg"^-1*" h"^-1 * ")"))) +
   xlab(expression(atop("Median O"[2] *" consumption rate" ^(1/3)*"", "(mg O"[2] * " kg"^-1*" h"^-1 * ")"))) 
 
 ggsave("./Figures/SI_rCV_vs_Rate_mg_per_kg.png", plot = rCV_vs_mg_kg, width = 6, height = 6, dpi = 300)
