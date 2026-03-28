@@ -1,29 +1,4 @@
 # =========================
-# Random Forest (Explanation-focused) with n ~ 46
-# - Complete-case only (prints removed Parent_IDs)
-# - Drops highly correlated numeric predictors (prints pairs + drops)
-# - Encoding:
-#     * selected hydrogeomorphology + sediment: k-1 dummy (reference level dropped)
-#     * selected canopy/macrophyte/algal coverage: ordinal score 0/1/2 (if columns exist)
-# - Performance:
-#     * repeated v-fold CV for tuning + GOF
-#     * ALSO prints OOB R^2 and OOB RMSE from final ranger fit
-# - Importance:
-#     * permutation importance (ranger)
-#     * bootstrap stability for importance (distributions + rank stability + prop_gt0)
-# - MANUAL predictor removal:
-#     * Based on your initial VIP plots (NOT iterative)
-#     * Keeps only predictors you specified (per outcome)
-# - PLOTTING:
-#     * plots combined into multi-panel figures tagged A/B automatically
-#     * theme_bw() globally
-#     * shorter labels
-# - OUTPUT:
-#     * GOF + quantiles + best params to Excel
-#     * importance + stability summaries to Excel
-# =========================
-
-# =========================
 # 0) Packages
 # =========================
 rm(list = ls())
@@ -90,7 +65,7 @@ ordinal_cov_all <- c(
 )
 
 # =========================
-# MANUAL predictor selection based on your INITIAL VIP plots
+# MANUAL predictor selection based on INITIAL VIP plots
 # (raw-column level; factors kept as whole factors)
 # =========================
 keep_map <- list(
@@ -100,7 +75,7 @@ keep_map <- list(
       "slope",
       "total_drainage_area_sq_km",
       "pct_ag"
-      # dropping pct_fst based on negative perm importance in your plot
+      # dropping pct_fst based on negative perm importance
     ),
     nominal = c(
       "hydrogeomorphology",
@@ -119,21 +94,21 @@ keep_map <- list(
       "aridity_ws",
       "stream_order",
       "water_depth_cm"
-      # dropping total_drainage_area_sq_km and pct_fst based on ~0/negative in your plot
+      # dropping total_drainage_area_sq_km and pct_fst based on ~0/negative
     ),
     nominal = c(
       "sediment"
-      # dropping hydrogeomorphology based on negative/near 0 in your plot
+      # dropping hydrogeomorphology based on negative/near 0 i
     ),
     ordinal = c(
       "canopy_coverage"
-      # dropping algal_mat_coverage based on negative in your plot
+      # dropping algal_mat_coverage based on negative 
     )
   )
 )
 
 # =========================
-# Required columns check (using the MANUAL selections)
+# Required columns check 
 # =========================
 # Ensure all outcomes exist
 missing_outcomes <- setdiff(outcomes, names(dat0))
@@ -670,22 +645,12 @@ cat(" - rf_vip_2panel_AB_manual_positive_only.png\n")
 cat(" - rf_importance_stability_2panel_AB_manual_positive_only.png\n")
 
 # =========================
-# FIXED Directionality chunk (SHAP + Partial Dependence)
-# - avoids prep() entirely by baking with the already-trained recipe
-# - robust to new/unseen factor levels via step_novel() (add in your original recipe)
+# SHAP + Partial Dependence
 # =========================
 
-# Add these libraries if not already loaded
 library(fastshap)
 library(pdp)
 
-# ---------------------------------------------------------
-# (A) OPTIONAL BUT RECOMMENDED: add this inside fit_rf_explain()
-#     right after step_dummy(...), BEFORE prep():
-#     rec <- rec %>% step_novel(all_nominal_predictors())
-# ---------------------------------------------------------
-
-# ---- helper: get baked X from the TRAINED recipe inside the fitted workflow ----
 get_baked_x_from_fitted_workflow <- function(final_fit_wf, raw_d, outcome) {
   
   # extract the recipe that is already trained/prepped inside the fitted workflow

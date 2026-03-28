@@ -59,16 +59,18 @@ print(head(effect_with_metadata %>% select(Sample_Name, Parent_ID, Intermittent_
 print(paste("Number of intermittent sites in effect data:", sum(effect_with_metadata$Intermittent_or_Perennial == "Intermittent", na.rm = TRUE)))
 
 #  Filter to only keep sites with positive effect size (excluding negative effect sizes due to uncertainty in the calculation of the rates)
-sites_with_negative_effect = effect_with_metadata %>%
-  filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H >= 0) %>%
-  pull(Parent_ID)
+sites_with_negative_effect = effect_with_metadata 
+# %>%
+#   filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H >= 0) %>%
+#   pull(Parent_ID)
 
 print(paste("Number of sites with negative effect size:", length(sites_with_negative_effect)))
 print("Sites with negative effect size:")
 print(sites_with_negative_effect)
 
-all_data_filtered = all_data_with_metadata %>%
-  filter(Parent_ID %in% sites_with_negative_effect)
+all_data_filtered = all_data_with_metadata
+#%>%
+ # filter(Parent_ID %in% sites_with_negative_effect)
 
 print(paste("Number of samples after filtering for negative effect size sites:", nrow(all_data_filtered)))
 print(paste("Number of samples BEFORE filtering:", nrow(all_data_with_metadata)))
@@ -114,7 +116,7 @@ print(intermittent_effect_values)
 
 # Cube root transform effect size data 
 cube_effect = effect_with_metadata %>%
-  filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H >= 0) %>%  # Changed the sign here
+ # filter(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H >= 0) %>%  # Changed the sign here
   mutate(cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = cube_root(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
 
 # Get cube root effect size values for intermittent sites
@@ -185,7 +187,7 @@ effect_hist = ggplot(cube_effect, aes(x = (Effect_Size_Respiration_Rate_mg_DO_pe
         axis.text.y = element_text(size = 12),   # **NEW: Increased axis text size**
         legend.key.width = unit(0.4, "in")) +  # **NEW: Wider legend key for clearer dashed line**
   guides(linetype = guide_legend(title = "", override.aes = list(linewidth = 1))) +  # **NEW: Make dashed line thicker in legend**
-  xlab(expression(atop("\n |Effect Size O"[2]*" Consumption Rate|","(|Median Wet - Median Dry Rate|; mg O"[2]*" kg"^-1*" h"^-1*")")))
+  xlab(expression(atop("\n Effect Size O"[2]*" Consumption Rate","(Median Wet - Median Dry Rate; mg O"[2]*" kg"^-1*" h"^-1*")")))
 
 ## Combine SI histograms
 combined_SI_hist = ggarrange(all_hist, effect_hist, ncol = 2, labels = c("A", "B"), hjust = -1, vjust = 2.5)
