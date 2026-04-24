@@ -7,3 +7,7 @@ Download ECA data package: https://data.ess-dive.lbl.gov/view/doi%3A10.15485%2F2
 Download CM data package: https://data.ess-dive.lbl.gov/view/doi%3A10.15485%2F1923689, v4_CM_SSS_Data_Package.zip
 
 -Forbes, B., Barnes, M., Boehnke, B. T., Chen, X., Cornwell, K., Delgado, D., Fulton, S. G., Garayburu-Caruso, V. A., Gary, S., Goldman, A. E., Gonzalez, B. I., Grieger, S., Hammond, G. E., Jiang, P., Kaufman, M. H., Laan, M., Li, B., Li, Z., McKever, S. A., … Consortium, T. W. (2023). WHONDRS River Corridor Dissolved Oxygen, Temperature, Sediment Aerobic Respiration, Grain Size, and Water Chemistry from Machine-Learning-Informed Sites across the Contiguous United States (v4). 
+
+Download the EV data package: https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2569752, WHONDRS_EV_Data_Package
+
+Laan M ; Delgado D ; Garayburu-Caruso V A ; Goldman A E ; Forbes B ; Laub B ; McKever S A ; Renteria L ; Vergara M ; Veach A ; Stegen J C (2025): Laboratory time series moisture manipulative experiment from sediment across San Antonio, Texas: time series aerobic respiration and geochemistry. Early Career Research Program: Watershed Perturbation-Response Traits Derived Through Ecological Theory - Worldwide Hydrobiogeochemistry Observation Network for Dynamic River Systems (WHONDRS), ESS-DIVE repository. Dataset. doi:10.15485/2569752 

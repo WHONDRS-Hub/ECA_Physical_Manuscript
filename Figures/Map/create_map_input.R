@@ -7,7 +7,7 @@
 # ==============================================================================
 #
 # Author: Brieanne Forbes (brieanne.forbes@pnnl.gov)
-# 13 September 2024
+# 13 September 2024 (updated 24 April 2026)
 
 # remove all files
 rm(list=ls(all=TRUE))
@@ -27,13 +27,13 @@ data_dir <- './Data'
 
 # ============================ find and read files =============================
 
-metadata <- list.files(data_dir, 'Metadata', full.names = T) %>%
+metadata <- list.files(data_dir, 'EC_Field_Metadata', full.names = T) %>%
   read_csv() %>%
   select(Parent_ID, Sample_Latitude, Sample_Longitude) %>% # select columns with coordinates 
   rename(Latitude = Sample_Latitude, # rename for simplicity
          Longitude = Sample_Longitude)
 
-data <- list.files(data_dir, 'Effect_Size', full.names = T) %>%
+data <- list.files(data_dir, 'EC_Sediment_Effect_Size', full.names = T) %>%
   read_csv(skip = 2, na =c('', NA, 'N/A', '-9999')) %>% # skip metadata rows and replace all different missing value codes with NA
   filter(!is.na(Sample_Name)) %>% # filter out metadata rows
   mutate(Parent_ID = str_remove(Sample_Name, '_all'), # create Parent_ID column to match to metadata
@@ -45,8 +45,26 @@ input_file <- metadata %>%
   filter(!Parent_ID %in% c('EC_011','EC_012', 'EC_023','EC_052','EC_053','EC_057')) %>% # remove Parent_IDs not used in the analysis
   arrange(desc(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
 
-  
-write_csv(input_file, './Figures/Map/Map_Input_File.csv')
+ev_metadata <- list.files(data_dir, 'EV_Field_Metadata', full.names = T, recursive = T) %>%
+  read_csv() %>%
+  select(Parent_ID, Sample_Latitude, Sample_Longitude) %>% # select columns with coordinates 
+  rename(Latitude = Sample_Latitude, # rename for simplicity
+         Longitude = Sample_Longitude)
+
+ev_data <- list.files(data_dir, 'EV_Sediment_Effect_Size', full.names = T, recursive = T) %>%
+  read_csv(skip = 2, na =c('', NA, 'N/A', '-9999')) %>% # skip metadata rows and replace all different missing value codes with NA
+  filter(!is.na(Sample_Name)) %>% # filter out metadata rows
+  mutate(Parent_ID = str_remove(Sample_Name, '_all'), # create Parent_ID column to match to metadata
+         Effect_Size_Median_Respiration_Rate_mg_DO_per_kg_per_H = as.numeric(Effect_Size_Median_Respiration_Rate_mg_DO_per_kg_per_H) * -1) %>%  #make values positive
+  select(Parent_ID, Effect_Size_Median_Respiration_Rate_mg_DO_per_kg_per_H) %>% #select column used for map 
+  rename(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = Effect_Size_Median_Respiration_Rate_mg_DO_per_kg_per_H) #rename to match EC 
+
+full_input_file <- ev_metadata %>%
+  full_join(ev_data) %>%
+  bind_rows(input_file) %>%
+  arrange(desc(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
+
+write_csv(full_input_file, './Figures/Map/Map_Input_File.csv')
 
 # This input file will not be included in the data package. Rerun this script in order to 
 # reproduce the map. Use the "Repair Data Source" function to select the file created by this script. 
