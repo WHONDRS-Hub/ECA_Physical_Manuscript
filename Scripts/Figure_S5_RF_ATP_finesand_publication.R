@@ -17,7 +17,32 @@ library(stringr)
 tidymodels::tidymodels_prefer()
 set.seed(123)
 
-theme_set(theme_bw())
+
+# Publication-output folders
+fig_dir <- "Figures/RF_publication"
+data_dir <- "Data/RF_publication"
+dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(data_dir, recursive = TRUE, showWarnings = FALSE)
+
+# Publication theme. Keep text large enough for a supplement figure.
+theme_pub <- function(base_size = 9) {
+  theme_classic(base_size = base_size) +
+    theme(
+      axis.text = element_text(color = "black"),
+      axis.title = element_text(color = "black"),
+      strip.background = element_blank(),
+      strip.text = element_text(face = "bold"),
+      plot.title = element_text(face = "bold", hjust = 0, size = base_size + 1),
+      plot.subtitle = element_text(size = base_size - 1),
+      plot.tag = element_text(face = "bold", size = base_size + 2),
+      panel.grid.major.x = element_line(linewidth = 0.25, color = "grey85"),
+      panel.grid.major.y = element_blank(),
+      legend.title = element_text(size = base_size - 1),
+      legend.text = element_text(size = base_size - 2)
+    )
+}
+
+theme_set(theme_pub())
 
 # =========================
 # 1) Read data + clean names
@@ -579,70 +604,86 @@ write_xlsx(
 cat("\nWrote model fit summary to: rf_model_gof_manual_positive_only.xlsx\n")
 
 # =========================
-# 10) Variable importance plots (2-panel tagged A/B)
+# 10) Publication-quality variable importance plots
 # =========================
-vip_plots <- list()
-stab_plots <- list()
+# Main Figure S5: bootstrap distributions of ranger permutation importance.
+# The red dashed line is zero importance; predictors are ordered by median bootstrap importance.
 
-for (res in results) {
-  
-  vip_plots[[res$outcome]] <-
-    res$vip %>%
-    slice_head(n = 25) %>%
-    mutate(variable_pretty = wrap_lab(pretty_var(variable))) %>%
-    ggplot(aes(x = reorder(variable_pretty, importance), y = importance)) +
-    geom_col() +
-    coord_flip() +
-    labs(
-      title = pretty_outcome(res$outcome),
-      x = NULL,
-      y = "Permutation importance"
-    )
-  
+plot_boot_importance <- function(res, n_top = 12) {
   top_vars <- res$importance_boot$imp_summary %>%
-    slice_head(n = 15) %>%
+    slice_head(n = n_top) %>%
     pull(variable)
-  
-  stab_plots[[res$outcome]] <-
-    res$importance_boot$imps %>%
+
+  res$importance_boot$imps %>%
     filter(variable %in% top_vars) %>%
-    mutate(variable_pretty = wrap_lab(pretty_var(variable))) %>%
-    ggplot(aes(x = reorder(variable_pretty, importance, FUN = median), y = importance)) +
-    geom_boxplot(outlier.size = 0.7) +
-    coord_flip() +
+    mutate(
+      variable_pretty = wrap_lab(pretty_var(variable), width = 25),
+      variable_pretty = forcats::fct_reorder(variable_pretty, importance, .fun = median, .desc = FALSE)
+    ) %>%
+    ggplot(aes(x = variable_pretty, y = importance)) +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.35, color = "#B2182B") +
+    geom_boxplot(width = 0.62, outlier.size = 0.45, outlier.alpha = 0.55, linewidth = 0.35, fill = "white") +
+    stat_summary(fun = median, geom = "point", size = 0.9) +
+    coord_flip(clip = "off") +
     labs(
       title = pretty_outcome(res$outcome),
       x = NULL,
-      y = "Bootstrap importance"
-    )
+      y = "Bootstrap permutation importance"
+    ) +
+    theme_pub(base_size = 9) +
+    theme(plot.title = element_text(hjust = 0.5))
 }
 
-vip_plots_2 <- vip_plots[outcomes]
-stab_plots_2 <- stab_plots[outcomes]
+plot_single_fit_importance <- function(res, n_top = 12) {
+  res$vip %>%
+    slice_head(n = n_top) %>%
+    mutate(
+      variable_pretty = wrap_lab(pretty_var(variable), width = 25),
+      variable_pretty = forcats::fct_reorder(variable_pretty, importance, .desc = FALSE)
+    ) %>%
+    ggplot(aes(x = variable_pretty, y = importance)) +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.35, color = "#B2182B") +
+    geom_col(width = 0.7, fill = "grey45") +
+    coord_flip(clip = "off") +
+    labs(
+      title = pretty_outcome(res$outcome),
+      x = NULL,
+      y = "Permutation importance, full fit"
+    ) +
+    theme_pub(base_size = 9) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
 
-vip_panel_2 <-
-  wrap_plots(vip_plots_2, ncol = 2) +
-  plot_annotation(
-    title = "Permutation importance (single fit on all data)",
-    tag_levels = "A"
-  )
+stab_plots <- purrr::map(results, plot_boot_importance)
+names(stab_plots) <- outcomes
+vip_plots <- purrr::map(results, plot_single_fit_importance)
+names(vip_plots) <- outcomes
 
 stab_panel_2 <-
-  wrap_plots(stab_plots_2, ncol = 2) +
-  plot_annotation(
-    title = "Importance stability (bootstrap distributions)",
-    tag_levels = "A"
-  )
+  wrap_plots(stab_plots[outcomes], ncol = 2) +
+  plot_annotation(tag_levels = "A") &
+  theme(plot.margin = margin(4, 8, 4, 4))
 
-print(vip_panel_2)
+vip_panel_2 <-
+  wrap_plots(vip_plots[outcomes], ncol = 2) +
+  plot_annotation(tag_levels = "A") &
+  theme(plot.margin = margin(4, 8, 4, 4))
+
 print(stab_panel_2)
+print(vip_panel_2)
 
+ggsave(file.path(fig_dir, "Figure_S5_RF_bootstrap_importance_ATP_finesand.pdf"), stab_panel_2, width = 7.2, height = 3.8, device = cairo_pdf)
+ggsave(file.path(fig_dir, "Figure_S5_RF_bootstrap_importance_ATP_finesand.png"), stab_panel_2, width = 7.2, height = 3.8, dpi = 600)
+ggsave(file.path(fig_dir, "Figure_S5_RF_single_fit_importance_ATP_finesand.pdf"), vip_panel_2, width = 7.2, height = 3.8, device = cairo_pdf)
+ggsave(file.path(fig_dir, "Figure_S5_RF_single_fit_importance_ATP_finesand.png"), vip_panel_2, width = 7.2, height = 3.8, dpi = 600)
+
+# Keep the original filenames too, for backward compatibility with drafts.
 ggsave("rf_vip_2panel_AB_manual_positive_only.png", vip_panel_2, width = 12, height = 5, dpi = 300)
 ggsave("rf_importance_stability_2panel_AB_manual_positive_only.png", stab_panel_2, width = 12, height = 5, dpi = 300)
 
-cat("\nSaved figures:\n")
-cat(" - rf_vip_2panel_AB_manual_positive_only.png\n")
-cat(" - rf_importance_stability_2panel_AB_manual_positive_only.png\n")
+cat("\nSaved publication figures to: ", fig_dir, "\n", sep = "")
+cat(" - Figure_S5_RF_bootstrap_importance_ATP_finesand.pdf/.png\n")
+cat(" - Figure_S5_RF_single_fit_importance_ATP_finesand.pdf/.png\n")
 
 # =========================
 # SHAP + Partial Dependence
@@ -812,6 +853,73 @@ for (res in results) {
 shap_summary_tbl <- bind_rows(shap_summaries)
 pd_summary_tbl   <- bind_rows(pd_summaries)
 
+
+# =========================
+# 11) Publication-quality SHAP summary plot for % fine sand
+# =========================
+# The manuscript currently interprets SHAP only for % fine sand because the ATP model has poor predictive skill.
+plot_shap_summary <- function(shap_tbl, X, outcome_label, n_top = 8) {
+  shap_long <- shap_tbl %>%
+    mutate(observation = dplyr::row_number()) %>%
+    tidyr::pivot_longer(-observation, names_to = "variable", values_to = "shap_value") %>%
+    left_join(
+      X %>%
+        mutate(observation = dplyr::row_number()) %>%
+        tidyr::pivot_longer(-observation, names_to = "variable", values_to = "feature_value"),
+      by = c("observation", "variable")
+    )
+
+  top_vars <- shap_long %>%
+    group_by(variable) %>%
+    summarise(mean_abs = mean(abs(shap_value), na.rm = TRUE), .groups = "drop") %>%
+    arrange(desc(mean_abs)) %>%
+    slice_head(n = n_top) %>%
+    pull(variable)
+
+  shap_long %>%
+    filter(variable %in% top_vars) %>%
+    mutate(
+      variable_pretty = wrap_lab(pretty_var(variable), width = 25),
+      variable_pretty = forcats::fct_reorder(variable_pretty, abs(shap_value), .fun = mean, .desc = FALSE)
+    ) %>%
+    ggplot(aes(x = shap_value, y = variable_pretty, color = feature_value)) +
+    geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.35, color = "#B2182B") +
+    geom_point(size = 1.4, alpha = 0.75, position = position_jitter(height = 0.12, width = 0)) +
+    scale_color_viridis_c(option = "D", name = "Feature\nvalue") +
+    labs(
+      title = paste0("SHAP summary: ", outcome_label),
+      x = "SHAP value (impact on predicted response)",
+      y = NULL
+    ) +
+    theme_pub(base_size = 9) +
+    theme(legend.position = "right", plot.title = element_text(hjust = 0.5))
+}
+
+# Save only the fine-sand SHAP plot as a manuscript-quality companion figure.
+if ("cube_percent_fine_sand" %in% names(shap_summaries)) {
+  fine_sand_res <- results[[which(outcomes == "cube_percent_fine_sand")]]
+  fine_sand_fit <- extract_fit_parsnip(fine_sand_res$final_fit)$fit
+
+  # Recreate raw d and X for fine sand using the final workflow recipe.
+  outcome <- "cube_percent_fine_sand"
+  sel_num     <- keep_map[[outcome]]$num
+  sel_nominal <- keep_map[[outcome]]$nominal
+  sel_ordinal <- keep_map[[outcome]]$ordinal
+  cov_levels <- c("No coverage", "Partial coverage", "Full coverage")
+  d_shap <- dat_complete %>%
+    dplyr::select(parent_id, all_of(outcome), all_of(sel_num), all_of(sel_nominal), any_of(sel_ordinal))
+  if ("sediment" %in% sel_nominal) d_shap <- d_shap %>% mutate(sediment = factor(sediment))
+  if (length(sel_ordinal) > 0) d_shap <- d_shap %>% mutate(across(any_of(sel_ordinal), ~ factor(.x, levels = cov_levels, ordered = TRUE)))
+  if ("sediment" %in% sel_nominal && "Sand" %in% levels(d_shap$sediment)) d_shap <- d_shap %>% mutate(sediment = relevel(sediment, ref = "Sand"))
+
+  X_shap <- get_baked_x_from_fitted_workflow(fine_sand_res$final_fit, d_shap, outcome)
+  shap_tbl_plot <- compute_shap(fine_sand_fit, X_shap, nsim = 300, seed = 123)
+  p_shap_s5 <- plot_shap_summary(shap_tbl_plot, X_shap, "% fine sand", n_top = 8)
+  print(p_shap_s5)
+  ggsave(file.path(fig_dir, "Figure_S5_SHAP_finesand.pdf"), p_shap_s5, width = 4.2, height = 3.4, device = cairo_pdf)
+  ggsave(file.path(fig_dir, "Figure_S5_SHAP_finesand.png"), p_shap_s5, width = 4.2, height = 3.4, dpi = 600)
+}
+
 # =========================
 # Export to Excel
 # =========================
@@ -825,173 +933,3 @@ write_xlsx(
 
 cat("\nWrote directionality summaries to: rf_directionality_shap_pd.xlsx\n")
 
-# =========================
-# 11) Combined 3-panel figure — layout: A | B on top, C on bottom
-# =========================
-library(ggbeeswarm)
-library(scales)
-library(patchwork)
-library(tibble)
-
-# Shared theme for consistency and readability — LARGER LABELS
-readable_theme <- theme_bw(base_size = 18) +
-  theme(
-    plot.subtitle      = element_text(size = 19, face = "bold", margin = margin(b = 10)),
-    plot.tag           = element_text(size = 24, face = "bold"),
-    axis.title.x       = element_text(size = 18, margin = margin(t = 10)),
-    axis.title.y       = element_text(size = 18, margin = margin(r = 10)),
-    axis.text.x        = element_text(size = 16),
-    axis.text.y        = element_text(size = 16),
-    legend.title       = element_text(size = 16),
-    legend.text        = element_text(size = 15),
-    legend.key.height  = unit(1.6, "cm"),
-    legend.key.width   = unit(0.7, "cm"),
-    panel.grid.minor   = element_blank(),
-    plot.margin        = margin(12, 16, 12, 16)
-  )
-
-# ---- Panels A & B: Bootstrap importance stability ----
-make_stability_panel <- function(res, keep_map, tag_label = NULL) {
-  outcome <- res$outcome
-  top_vars <- res$importance_boot$imp_summary %>%
-    slice_head(n = 15) %>%
-    pull(variable)
-  
-  res$importance_boot$imps %>%
-    filter(variable %in% top_vars) %>%
-    mutate(variable_pretty = wrap_lab(pretty_var(variable))) %>%
-    ggplot(aes(
-      x = reorder(variable_pretty, importance, FUN = median),
-      y = importance
-    )) +
-    geom_boxplot(outlier.size = 1.5, fill = "grey85", linewidth = 0.6) +
-    geom_hline(yintercept = 0, linetype = "dashed",
-               colour = "red", linewidth = 0.7) +
-    coord_flip() +
-    labs(
-      subtitle = pretty_outcome(outcome),
-      x = NULL,
-      y = "Permutation importance"
-    ) +
-    readable_theme
-}
-
-panel_a <- make_stability_panel(results[[1]])
-panel_b <- make_stability_panel(results[[2]])
-
-# ---- Panel C: SHAP beeswarm for % fine sand ----
-fs_idx     <- which(sapply(results, function(r) r$outcome) == "cube_percent_fine_sand")
-fs_res     <- results[[fs_idx]]
-fs_outcome <- fs_res$outcome
-
-sel_num     <- keep_map[[fs_outcome]]$num
-sel_nominal <- keep_map[[fs_outcome]]$nominal
-sel_ordinal <- keep_map[[fs_outcome]]$ordinal
-cov_levels  <- c("No coverage", "Partial coverage", "Full coverage")
-
-d_fs <- dat_complete %>%
-  select(parent_id, all_of(fs_outcome),
-         all_of(sel_num), all_of(sel_nominal), any_of(sel_ordinal))
-
-if ("hydrogeomorphology" %in% sel_nominal)
-  d_fs <- d_fs %>% mutate(hydrogeomorphology = factor(hydrogeomorphology))
-if ("sediment" %in% sel_nominal)
-  d_fs <- d_fs %>% mutate(sediment = factor(sediment))
-if (length(sel_ordinal) > 0)
-  d_fs <- d_fs %>%
-  mutate(across(any_of(sel_ordinal),
-                ~ factor(.x, levels = cov_levels, ordered = TRUE)))
-
-if ("hydrogeomorphology" %in% sel_nominal &&
-    "Single-channel straight" %in% levels(d_fs$hydrogeomorphology))
-  d_fs <- d_fs %>% mutate(hydrogeomorphology = relevel(hydrogeomorphology, ref = "Single-channel straight"))
-if ("sediment" %in% sel_nominal && "Sand" %in% levels(d_fs$sediment))
-  d_fs <- d_fs %>% mutate(sediment = relevel(sediment, ref = "Sand"))
-
-ranger_fs <- extract_fit_parsnip(fs_res$final_fit)$fit
-X_fs      <- get_baked_x_from_fitted_workflow(fs_res$final_fit, d_fs, fs_outcome)
-
-# Compute SHAP values
-shap_fs_raw <- compute_shap(ranger_fs, X_fs, nsim = 300, seed = 123)
-
-# --- Robust coercion (fixes "seq_len(ncols)" error and the
-# "<explain/matrix/array>" warning) ----------------------------
-shap_mat <- as.matrix(shap_fs_raw)
-shap_fs  <- tibble::as_tibble(as.data.frame(shap_mat, stringsAsFactors = FALSE))
-
-X_fs_df <- tibble::as_tibble(as.data.frame(as.matrix(X_fs),
-                                           stringsAsFactors = FALSE))
-
-stopifnot(nrow(shap_fs) == nrow(X_fs_df))
-stopifnot(ncol(shap_fs) == ncol(X_fs_df))
-stopifnot(all(colnames(shap_fs) == colnames(X_fs_df)))
-# --------------------------------------------------------------
-
-# Build long-form data for beeswarm
-shap_long <- shap_fs %>%
-  mutate(row_id = row_number()) %>%
-  pivot_longer(-row_id, names_to = "variable", values_to = "shap_value")
-
-feature_long <- X_fs_df %>%
-  mutate(row_id = row_number()) %>%
-  pivot_longer(-row_id, names_to = "variable", values_to = "feature_value")
-
-bee_df <- shap_long %>%
-  left_join(feature_long, by = c("row_id", "variable")) %>%
-  group_by(variable) %>%
-  mutate(feature_scaled = rescale(feature_value, to = c(0, 1))) %>%
-  ungroup()
-
-var_order <- bee_df %>%
-  group_by(variable) %>%
-  summarise(mean_abs = mean(abs(shap_value)), .groups = "drop") %>%
-  arrange(mean_abs) %>%
-  pull(variable)
-
-bee_df <- bee_df %>%
-  mutate(
-    variable_pretty = wrap_lab(pretty_var(variable)),
-    variable_pretty = factor(variable_pretty,
-                             levels = wrap_lab(pretty_var(var_order)))
-  )
-
-panel_c <- ggplot(bee_df,
-                  aes(x = variable_pretty, y = shap_value, colour = feature_scaled)) +
-  ggbeeswarm::geom_quasirandom(size = 1.8, width = 0.35, alpha = 0.8) +
-  scale_colour_gradient(
-    low = "#2166AC", high = "#B2182B",
-    name = "Feature value\n(scaled 0–1)"
-  ) +
-  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.7) +
-  coord_flip() +
-  labs(
-    subtitle = paste0(pretty_outcome(fs_outcome), " — SHAP values"),
-    x = NULL,
-    y = "SHAP value (impact on prediction)"
-  ) +
-  readable_theme +
-  theme(legend.position = "right")
-
-# ---- Assemble: A | B on top, C spanning the full width below ----
-combined_fig <- (panel_a | panel_b) / panel_c +
-  plot_layout(heights = c(1, 1.15)) +
-  plot_annotation(
-    tag_levels = "A",
-    theme = theme(plot.tag = element_text(size = 24, face = "bold"))
-  ) &
-  theme(plot.tag = element_text(size = 24, face = "bold"))
-
-print(combined_fig)
-
-# Larger canvas so the bigger text has room to breathe
-ggsave(
-  "Figures/Figure_S5_rf_3panel_stability_shap.png",
-  combined_fig,
-  width = 17, height = 15, dpi = 300
-)
-
-ggsave(
-  "Figures/Figure_S5_rf_3panel_stability_shap.pdf",
-  combined_fig,
-  width = 17, height = 15
-)

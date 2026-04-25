@@ -864,3 +864,150 @@ cat("• Bootstrap stable (>50% selection rate)\n")
 cat("• High SHAP importance\n")
 cat("• Clear directional effects\n")
 cat("• Biologically meaningful\n")
+# ============================================================
+# FIGURE S6 — 
+# ============================================================
+
+# ---- Pick results ----
+results <- cube_complete  # change to raw_complete if needed
+
+# ---- Check what features exist ----
+cat("Permutation features:\n")
+print(colnames(results$perm_results$importance_matrix))
+cat("\nSHAP features:\n")
+print(unique(results$shap_results$shap_long$feature))
+
+# ---- Name mapping ----
+name_mapping <- c(
+  "cube_Percent_Fine_Sand"                   = "Fine Sand (%)",
+  "cube_Percent_Med_Sand"                    = "Med. Sand (%)",
+  "cube_Percent_Coarse_Sand"                 = "Coarse Sand (%)",
+  "cube_Percent_Tot_Sand"                    = "Total Sand (%)",
+  "cube_Percent_Clay"                        = "Clay (%)",
+  "cube_Median_ATP_picomoles_per_g"          = "ATP (pmol/g)",
+  "cube_Median_SpC_microsiemens_per_cm"      = "SpC (uS/cm)",
+  "cube_Median_pH"                           = "Median pH",
+  "cube_Median_Fe_mg_per_kg"                 = "Fe (mg/kg)",
+  "cube_Median_Temperature_degC"             = "Temperature (C)",
+  "cube_Median_X01395_C_percent_per_mg"      = "Sediment C (%)",
+  "cube_Median_X01397_N_percent_per_mg"      = "Sediment N (%)",
+  "cube_Median_Extractable_NPOC_mg_per_kg"   = "NPOC (mg/kg)",
+  "cube_Median_Extractable_TN_mg_per_kg"     = "Extractable TN (mg/kg)",
+  "cube_Mean_Specific_Surface_Area_m2_per_g" = "SSA (m2/g)",
+  "cube_median_Dry_Initial_Gravimetric"      = "Grav. Moisture",
+  "cube_median_Dry_Final_Gravimetric"        = "Final Grav. Moisture",
+  "cube_Effect_Size_pH"                      = "Effect Size pH",
+  "cube_Effect_Size_SpC_microsiemens_per_cm" = "Effect Size SpC",
+  "cube_Effect_Size_Fe_mg_per_kg"            = "Effect Size Fe",
+  "cube_Effect_Size_Temperature_degC"        = "Effect Size Temp",
+  "cube_Effect_Size_ATP_picomoles_per_g"     = "Effect Size ATP",
+  "Percent_Fine_Sand"                        = "Fine Sand (%)",
+  "Percent_Med_Sand"                         = "Med. Sand (%)",
+  "Percent_Coarse_Sand"                      = "Coarse Sand (%)",
+  "Percent_Tot_Sand"                         = "Total Sand (%)",
+  "Percent_Clay"                             = "Clay (%)",
+  "Median_ATP_picomoles_per_g"               = "ATP (pmol/g)",
+  "Median_SpC_microsiemens_per_cm"           = "SpC (uS/cm)",
+  "Median_pH"                                = "Median pH",
+  "Median_Fe_mg_per_kg"                      = "Fe (mg/kg)",
+  "Median_Temperature_degC"                  = "Temperature (C)",
+  "Median_X01395_C_percent_per_mg"           = "Sediment C (%)",
+  "Median_X01397_N_percent_per_mg"           = "Sediment N (%)",
+  "Median_Extractable_NPOC_mg_per_kg"        = "NPOC (mg/kg)",
+  "Median_Extractable_TN_mg_per_kg"          = "Extractable TN (mg/kg)",
+  "Mean_Specific_Surface_Area_m2_per_g"      = "SSA (m2/g)",
+  "median_Dry_Initial_Gravimetric"           = "Grav. Moisture",
+  "median_Dry_Final_Gravimetric"             = "Final Grav. Moisture",
+  "Effect_Size_pH"                           = "Effect Size pH",
+  "Effect_Size_SpC_microsiemens_per_cm"      = "Effect Size SpC",
+  "Effect_Size_Fe_mg_per_kg"                 = "Effect Size Fe",
+  "Effect_Size_Temperature_degC"             = "Effect Size Temp",
+  "Effect_Size_ATP_picomoles_per_g"          = "Effect Size ATP"
+)
+
+clean_name <- function(x) {
+  out <- name_mapping[x]
+  out[is.na(out)] <- x[is.na(out)] %>%
+    str_remove("^cube_") %>%
+    str_remove("^Median_") %>%
+    str_remove("^Effect_Size_") %>%
+    str_replace_all("_", " ")
+  return(out)
+}
+
+# ============================================================
+# PANEL A with larger text
+# ============================================================
+
+panel_a <- ggplot(imp_long,
+                  aes(x = importance,
+                      y = factor(feature_clean, levels = imp_order))) +
+  geom_boxplot(fill = "#B8D4E3", color = "black",
+               outlier.size = 0.8, outlier.alpha = 0.5,
+               width = 0.6) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+  labs(x = expression(Decrease~"in"~R^2), y = NULL) +
+  theme_bw(base_size = 14) +
+  theme(
+    axis.text.y    = element_text(size = 14, color = "black"),
+    axis.text.x    = element_text(size = 12, color = "black"),
+    axis.title.x   = element_text(size = 14, face = "bold"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank(),
+    plot.margin = margin(5, 15, 5, 5)
+  )
+
+# ============================================================
+# PANEL B with larger text
+# ============================================================
+
+panel_b <- ggplot(shap_clean,
+                  aes(x = shap_value,
+                      y = factor(feature_clean, levels = shap_order),
+                      color = feature_scaled)) +
+  geom_jitter(height = 0.2, width = 0,
+              alpha = 0.7, size = 2.5, shape = 16) +
+  scale_color_viridis_c(name = "Feature\nValue",
+                        option = "viridis",
+                        breaks = c(0, 0.5, 1),
+                        labels = c("Low", "Mid", "High")) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+  labs(x = "SHAP Value (Impact on Prediction)", y = NULL) +
+  theme_bw(base_size = 14) +
+  theme(
+    axis.text.y       = element_text(size = 14, color = "black"),
+    axis.text.x       = element_text(size = 12, color = "black"),
+    axis.title.x      = element_text(size = 14, face = "bold"),
+    legend.title      = element_text(size = 12, face = "bold"),
+    legend.text       = element_text(size = 11),
+    legend.key.height = unit(1.2, "cm"),
+    legend.key.width  = unit(0.5, "cm"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank(),
+    plot.margin = margin(5, 5, 5, 15)
+  )
+
+# ============================================================
+# COMBINE with larger tags and subtitle
+# ============================================================
+
+fig_s6 <- panel_a + panel_b +
+  plot_layout(widths = c(1, 1.2)) +
+  plot_annotation(
+    subtitle = "All variables are cube root transformed",
+    tag_levels = "A"
+  ) &
+  theme(
+    plot.tag      = element_text(size = 18, face = "bold"),
+    plot.subtitle = element_text(size = 13, face = "italic", hjust = 0.5)
+  )
+
+print(fig_s6)
+
+# Save larger
+ggsave("Figures/Figure_S6_Publication.png",
+       fig_s6, width = 16, height = 7, dpi = 300, bg = "white")
+
+ggsave("Figures/Figure_S6_Publication.pdf",
+       fig_s6, width = 16, height = 7)
+

@@ -177,7 +177,7 @@ p <- ggplot(paired, aes(x     = abs_diff,
 print(p)
 
 # Save at publication quality
-ggsave("Figures/FigureS4_effect_size.png", p,
+ggsave("Figures/FigureS3_effect_size.png", p,
        width = 10, height = 7, dpi = 300, bg = "white")
-ggsave("Figures/FigureS4_effect_size.pdf", p,
+ggsave("Figures/FigureS3_effect_size.pdf", p,
        width = 10, height = 7)
