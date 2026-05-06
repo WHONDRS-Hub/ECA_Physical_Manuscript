@@ -59,10 +59,14 @@ ev_data <- list.files(data_dir, 'EV_Sediment_Effect_Size', full.names = T, recur
   select(Parent_ID, Effect_Size_Median_Respiration_Rate_mg_DO_per_kg_per_H) %>% #select column used for map 
   rename(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H = Effect_Size_Median_Respiration_Rate_mg_DO_per_kg_per_H) #rename to match EC 
 
+cube_root <- function(x) sign(x) * (abs(x))^(1/3)
+
 full_input_file <- ev_metadata %>%
   full_join(ev_data) %>%
   bind_rows(input_file) %>%
+  mutate(Cubed_Effect_Size = cube_root(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H)) %>%
   arrange(desc(Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H))
+
 
 write_csv(full_input_file, './Figures/Map/Map_Input_File.csv')
 
