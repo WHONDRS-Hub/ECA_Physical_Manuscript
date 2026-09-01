@@ -17,14 +17,3 @@ and place them in `Data/`.
 > Add upon publication
 ## Contact
 - Vanessa Garayburu-Caruso, vanessa.garayburu-caruso@pnnl.gov
-
-## Readme
-- **Data**
-  - Data from ECA/CM v3 data packages associated with analysis. 
-- **Figures**
-  - Figures that are currently being used in manuscript (or intermediate files to make figures).
-- **Scripts**
-  - LASSO using bulk medians/effect size (LASSO on PCA axes in archive folder)
-  - D50 calculation
-
-
