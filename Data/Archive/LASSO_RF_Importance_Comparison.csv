@@ -1,9 +1,0 @@
-"variable","lasso_coeff","rf_importance","lasso_norm","rf_norm"
-"cube_Effect_Size_SpC_microsiemens_per_cm",-0.00294730247061553,0.890031933071598,1,1
-"cube_Effect_Size_Fe_mg_per_kg",0.0613212073234484,1.94822443785599,1,1
-"cube_Effect_Size_C_percent_per_mg",0.000985515090087923,0.134391615618047,1,1
-"cube_Percent_Fine_Sand",0.254416272671074,1.86491274701136,1,1
-"cube_Median_SpC_microsiemens_per_cm",0.0436088173225498,-0.0748447790975786,1,1
-"cube_Median_ATP_picomoles_per_g",0.187474840456674,1.18113359919433,1,1
-"cube_Median_X01395_C_percent_per_mg",0.0072294453827139,2.02623714934024,1,1
-"cube_Median_X01397_N_percent_per_mg",0.0599325923166492,0.3869459417549,1,1

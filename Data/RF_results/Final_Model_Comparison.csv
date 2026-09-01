@@ -1,3 +1,0 @@
-"Data_Type","Selected_Features","Model_R2","CV_R2_Mean","CV_R2_SD","Stable_Features","Top_SHAP_Feature"
-"Raw",6,0.912476923362823,0.475633881466814,0.254945867328566,3,"Percent_Fine_Sand"
-"Cube Root",6,0.902683312255377,0.283648280576153,0.172244552458365,2,"cube_Percent_Fine_Sand"
