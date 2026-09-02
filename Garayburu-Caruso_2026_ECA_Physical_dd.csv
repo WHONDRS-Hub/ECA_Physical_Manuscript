@@ -83,3 +83,10 @@ cube_Median_Extractable_NPOC_mg_per_kg,cube root of milligrams carbon per kilogr
 cube_Median_Extractable_TN_mg_per_kg,cube root of milligrams nitrogen per kilogram dry sediment,Cube root of the median post-incubation extractable total dissolved nitrogen concentration across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
 cube_median_Dry_Initial_Gravimetric,cube root of grams water per gram dry sediment,Cube root of the median initial gravimetric moisture content among dry-treatment replicates.,numeric,column_header,-9999,-9999
 cube_median_Dry_Final_Gravimetric,cube root of grams water per gram dry sediment,Cube root of the median final gravimetric moisture content among dry-treatment replicates after the 21-day manipulation.,numeric,column_header,-9999,-9999
+variable,N/A,Predictor variable included in the random-forest SHAP directionality analysis.,text,column_header,-9999,-9999
+mean_abs_shap,varies by outcome,"Mean absolute SHAP value for the predictor across observations, representing the average magnitude of the predictor's contribution to the modeled outcome.",numeric,column_header,-9999,-9999
+mean_shap,varies by outcome,Mean signed SHAP value for the predictor across observations.,numeric,column_header,-9999,-9999
+prop_positive_shap,proportion,Proportion of observations for which the predictor had a positive SHAP contribution to the modeled outcome.,numeric,column_header,-9999,-9999
+cor_shap_x,N/A,Pearson correlation between the predictor values and their corresponding SHAP values across observations.,numeric,column_header,-9999,-9999
+direction,N/A,"Direction of the predictor-outcome relationship inferred from the association between predictor values and SHAP values, reported as increasing or decreasing.",text,column_header,-9999,-9999
+outcome,N/A,Modeled random-forest response variable for which SHAP values and directionality statistics were calculated.,text,column_header,-9999,-9999

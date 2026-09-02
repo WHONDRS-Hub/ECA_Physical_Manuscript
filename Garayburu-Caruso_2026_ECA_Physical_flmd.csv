@@ -11,7 +11,7 @@ Complete_Analysis_Cube_Root.csv,"Combined cube-root random-forest results includ
 Cross_Validation_Cube_Root.csv,Fold-level cross-validation R2 and RMSE for full and selected-predictor random-forest models using cube-root-transformed data.,ESS-DIVE CSV v1,1,1,/Data/RF_results
 Permutation_Importance_Cube_Root.csv,"Mean, standard deviation, and coefficient of variation of permutation importance for cube-root random-forest predictors.",ESS-DIVE CSV v1,1,1,/Data/RF_results
 SHAP_Analysis_Cube_Root.csv,"Mean absolute, mean, median, and standard deviation summaries of SHAP values for cube-root random-forest predictors.",ESS-DIVE CSV v1,1,1,/Data/RF_results
-rf_directionality_shap_pd.csv,File containing SHAP directionality summaries for random-forest models of median ATP and percent fine sand.,N/A,-9999,-9999,/Data/RF_ATP_fine_sand_04-26-26
+rf_directionality_shap_pd.csv,File containing SHAP directionality summaries for random-forest models of median ATP and percent fine sand.,ESS-DIVE CSV v1,1,1,/Data/RF_ATP_fine_sand_04-26-26
 Featured_Image.jpg,Featured conceptual image associated with the manuscript.,N/A,-9999,-9999,/Figures
 FigureS3_effect_size.*,Supplementary Figure S3 showing absolute versus relative oxygen-consumption effect size; provided in PDF and PNG formats.,N/A,-9999,-9999,/Figures
 FigureS4_EC_Ecoregion_EffectSize_Map.pdf,Supplementary Figure S4 map showing the primary 50-site subset and oxygen-consumption effect sizes by ecoregion.,N/A,-9999,-9999,/Figures
