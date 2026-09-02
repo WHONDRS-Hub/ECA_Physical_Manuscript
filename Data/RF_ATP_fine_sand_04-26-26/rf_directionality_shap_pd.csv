@@ -1,0 +1,21 @@
+variable,mean_abs_shap,mean_shap,prop_positive_shap,cor_shap_x,direction,outcome
+total_drainage_area_sq_km,0.088746251,6.26284E-05,0.369565217,-0.106510264,decreasing,ATP median
+canopy_coverage,0.086218742,-0.000597898,0.543478261,0.934543795,increasing,ATP median
+pct_ag,0.083618864,0.000286847,0.52173913,0.135148437,increasing,ATP median
+hydrogeomorphology_Single.channel.meandering,0.075318224,-0.000587993,0.5,0.993141973,increasing,ATP median
+slope,0.073585169,0.000722403,0.347826087,0.738135845,increasing,ATP median
+aridity_ws,0.073526778,-0.000850708,0.717391304,0.617936755,increasing,ATP median
+sediment_Silt.mud...0.0625mm.,0.048632672,0.000919185,0.369565217,0.99315455,increasing,ATP median
+sediment_Gravel.cobble...2mm.,0.04580787,0.000139708,0.282608696,0.988202144,increasing,ATP median
+hydrogeomorphology_Multi.channel,0.021929568,-5.85917E-05,0.913043478,-0.98017611,decreasing,ATP median
+sediment_Bedrock..primarily.,0.004190539,-3.55798E-05,0.956521739,-0.996126368,decreasing,ATP median
+pct_ag,0.106156484,-0.001102456,0.608695652,0.678412381,increasing,% fine sand
+sediment_Silt.mud...0.0625mm.,0.088179916,0.001625231,0.369565217,0.997198401,increasing,% fine sand
+slope,0.082532431,-0.000236266,0.434782609,-0.295392641,decreasing,% fine sand
+elevation,0.049881305,0.000418398,0.5,-0.827736082,decreasing,% fine sand
+stream_order,0.03673412,-0.000355372,0.195652174,0.689946922,increasing,% fine sand
+water_depth_cm,0.030474384,0.000160037,0.565217391,0.341476906,increasing,% fine sand
+aridity_ws,0.027727689,-0.000298955,0.826086957,0.488902841,increasing,% fine sand
+canopy_coverage,0.023785906,-0.000135652,0.130434783,0.797951874,increasing,% fine sand
+sediment_Gravel.cobble...2mm.,0.005449224,-6.23282E-05,0.717391304,-0.968558255,decreasing,% fine sand
+sediment_Bedrock..primarily.,0.002371909,-1.26354E-05,0.956521739,-0.979680384,decreasing,% fine sand

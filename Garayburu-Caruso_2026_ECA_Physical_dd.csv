@@ -1,0 +1,85 @@
+Column_or_Row_Name,Unit,Definition,Data_Type,Term_Type,Missing_Value_Code,Reported_Precision
+Sample_Name,N/A,Identifier for the site-level sample.,text,column_header,-9999,-9999
+d50,millimeters,"Median sediment particle diameter, defined as the diameter at which 50 percent of the sediment mass is finer and 50 percent is coarser.",numeric,column_header,-9999,-9999
+Parent_ID,N/A,"WHONDRS parent sample identifier used to link field, laboratory, and derived data for a sampling event.",text,column_header,N/A,-9999
+pH,N/A,Field-measured stream-water pH at the sampling location.,numeric,column_header,N/A,-9999
+site,N/A,Site identifier associated with the sampling location in the source data package.,text,column_header,N/A,-9999
+Stream_Name,N/A,Name of the sampled stream or river.,text,column_header,N/A,-9999
+City,N/A,Nearest reported city to the sampling location.,text,column_header,N/A,-9999
+State,N/A,U.S. state containing the sampling location.,text,column_header,N/A,-9999
+Weather,N/A,Weather conditions reported by the sampling team at the time of collection.,text,column_header,N/A,-9999
+Intermittent_or_Perennial,N/A,Reported flow regime classification of the sampled stream as intermittent or perennial.,text,column_header,N/A,-9999
+General_Vegetation,N/A,General vegetation types observed near the sampling location.,text,column_header,N/A,-9999
+Hydrogeomorphology,N/A,Field classification of channel planform or hydrogeomorphic setting.,text,column_header,N/A,-9999
+River_Gradient,N/A,Qualitative field classification of river or stream gradient.,text,column_header,N/A,-9999
+Sediment,N/A,Qualitative field description of dominant bed-sediment size or material.,text,column_header,N/A,-9999
+Water_Depth_cm,centimeters,Water depth at the sediment collection location.,numeric,column_header,N/A,-9999
+Depositional_Type,N/A,Field description of the depositional setting where sediment was collected.,text,column_header,N/A,-9999
+Canopy_Coverage,N/A,Ordinal field category describing canopy cover over the sampling location.,text,column_header,N/A,-9999
+Macrophyte_Coverage,N/A,Ordinal field category describing macrophyte cover at the sampling location.,text,column_header,N/A,-9999
+Algal_Mat_Coverage,N/A,Ordinal field category describing algal-mat cover at the sampling location.,text,column_header,N/A,-9999
+Sediment_Collection_Depth_cm,centimeters,Reported depth interval below the sediment surface from which sediment was collected.,text,column_header,N/A,-9999
+stream_order,N/A,Stream order assigned to the sampling location from the geospatial source data.,numeric,column_header,N/A,-9999
+total_drainage_area_sq_km,kilometers squared,Total drainage area upstream of the sampling location.,numeric,column_header,N/A,-9999
+slope,meters per meter,Channel slope associated with the sampling location from the geospatial source data.,numeric,column_header,N/A,-9999
+elevation,meters,Mean watershed elevation associated with the sampling location.,numeric,column_header,N/A,-9999
+AridityWs,N/A,"Watershed aridity index associated with the sampling location, from the Global Aridity Index and Potential Evapotranspiration Database version 3.",numeric,column_header,N/A,-9999
+Pct_shrub,percent,Percentage of watershed area classified as shrub land in the 2019 National Land Cover Database-derived geospatial data.,numeric,column_header,N/A,-9999
+precipitation,millimeters,Mean 30-year precipitation associated with the sampling location.,numeric,column_header,N/A,-9999
+PctFst,percent,"Percentage of watershed area classified as mixed, deciduous, or coniferous forest in the 2019 land-cover data.",numeric,column_header,N/A,-9999
+PctAg,percent,Percentage of watershed area classified as crop or hay agriculture in the 2019 land-cover data.,numeric,column_header,N/A,-9999
+feature,N/A,Predictor-variable name used in a random-forest analysis.,text,column_header,-9999,-9999
+count,count,Number of bootstrap refits in which the predictor met the stability or selection criterion.,numeric,column_header,-9999,-9999
+proportion,N/A,Proportion of bootstrap refits in which the predictor met the stability or selection criterion.,numeric,column_header,-9999,-9999
+cluster,N/A,Numeric identifier for the predictor cluster defined from Spearman correlation structure.,numeric,column_header,-9999,-9999
+individual_cor,N/A,Spearman rank correlation between the predictor and oxygen-consumption effect size.,numeric,column_header,-9999,-9999
+selected,N/A,Logical indicator of whether the predictor was selected to represent its correlation cluster.,boolean,column_header,-9999,-9999
+rank_in_cluster,N/A,Rank of the predictor within its correlation cluster based on the selection criterion; 1 is the highest rank.,numeric,column_header,-9999,-9999
+Feature,N/A,Predictor-variable name in the combined random-forest analysis summary.,text,column_header,-9999,-9999
+Individual_Correlation,N/A,Spearman rank correlation between the predictor and oxygen-consumption effect size.,numeric,column_header,-9999,-9999
+Permutation_Importance,N/A,Permutation-based random-forest variable importance; larger values indicate a larger decline in predictive performance when the predictor is permuted.,numeric,column_header,-9999,-9999
+Permutation_SD,N/A,Standard deviation associated with permutation-based variable importance.,numeric,column_header,-9999,-9999
+Bootstrap_Stability,N/A,Proportion of bootstrap refits in which the predictor met the stability or selection criterion.,numeric,column_header,-9999,-9999
+SHAP_Mean_Abs,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,Mean absolute SHAP value for the predictor across observations.,numeric,column_header,-9999,-9999
+SHAP_Mean,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,Mean signed SHAP value for the predictor across observations.,numeric,column_header,-9999,-9999
+SHAP_Direction,N/A,Direction of the association inferred from the relationship between predictor values and their SHAP contributions.,text,column_header,-9999,-9999
+fold,N/A,Cross-validation fold number.,numeric,column_header,-9999,-9999
+r2_full,N/A,Coefficient of determination for the full random-forest predictor set in the specified cross-validation fold.,numeric,column_header,-9999,-9999
+r2_selected,N/A,Coefficient of determination for the selected-predictor random-forest model in the specified cross-validation fold.,numeric,column_header,-9999,-9999
+rmse_full,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,Root mean squared error for the full random-forest predictor set in the specified cross-validation fold.,numeric,column_header,-9999,-9999
+rmse_selected,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,Root mean squared error for the selected-predictor random-forest model in the specified cross-validation fold.,numeric,column_header,-9999,-9999
+mean_importance,N/A,Mean permutation-based variable importance across model repetitions.,numeric,column_header,-9999,-9999
+sd_importance,N/A,Standard deviation of permutation-based variable importance across model repetitions.,numeric,column_header,-9999,-9999
+cv_importance,N/A,"Coefficient of variation of permutation-based variable importance, calculated as sd_importance divided by mean_importance.",numeric,column_header,-9999,-9999
+mean_abs,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,Mean absolute SHAP value for the predictor across observations.,numeric,column_header,-9999,-9999
+mean,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,Mean signed SHAP value for the predictor across observations.,numeric,column_header,-9999,-9999
+median,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,Median signed SHAP value for the predictor across observations.,numeric,column_header,-9999,-9999
+sd,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,Standard deviation of signed SHAP values for the predictor across observations.,numeric,column_header,-9999,-9999
+Name,N/A,Ecoregion code and name assigned to the sampling location.,text,column_header,-9999,-9999
+cube_Effect_Size_Respiration_Rate_mg_DO_per_kg_per_H,cube root of milligrams dissolved oxygen per kilogram dry sediment per hour,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the site-level oxygen-consumption effect size, defined as the wet-treatment median minus the dry-treatment median.",numeric,column_header,-9999,-9999
+cube_Effect_Size_SpC_microsiemens_per_cm,cube root of microsiemens per centimeter,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for specific conductance.",numeric,column_header,-9999,-9999
+cube_Effect_Size_pH,N/A,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for pH.",numeric,column_header,-9999,-9999
+cube_Effect_Size_Temperature_degC,cube root of degrees Celsius,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for post-incubation temperature.",numeric,column_header,-9999,-9999
+cube_Effect_Size_Fe_mg_per_kg,cube root of milligrams iron per kilogram dry sediment,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for sediment Fe(II) concentration.",numeric,column_header,-9999,-9999
+cube_Effect_Size_ATP_picomoles_per_g,cube root of picomoles adenosine triphosphate per gram dry sediment,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for sediment ATP concentration.",numeric,column_header,-9999,-9999
+cube_Effect_Size_Extractable_NPOC_mg_per_kg,cube root of milligrams carbon per kilogram dry sediment,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for extractable non-purgeable organic carbon concentration.",numeric,column_header,-9999,-9999
+cube_Effect_Size_Extractable_TN_mg_per_kg,cube root of milligrams nitrogen per kilogram dry sediment,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for extractable total dissolved nitrogen concentration.",numeric,column_header,-9999,-9999
+cube_Effect_Size_C_percent_per_mg,cube root of percent,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for sediment total organic carbon percentage.",numeric,column_header,-9999,-9999
+cube_Effect_Size_N_percent_per_mg,cube root of percent,"Cube-root transformation, calculated as the sign of x multiplied by the cube root of the absolute value of x, of the wet-minus-dry effect size for sediment total nitrogen percentage.",numeric,column_header,-9999,-9999
+cube_Percent_Tot_Sand,cube root of percent,Cube root of the site-level percentage of sediment classified as total sand.,numeric,column_header,-9999,-9999
+cube_Percent_Coarse_Sand,cube root of percent,Cube root of the site-level percentage of sediment classified as coarse sand (greater than 0.5 millimeters).,numeric,column_header,-9999,-9999
+cube_Percent_Med_Sand,cube root of percent,Cube root of the site-level percentage of sediment classified as medium sand (0.25 to 0.5 millimeters).,numeric,column_header,-9999,-9999
+cube_Percent_Fine_Sand,cube root of percent,Cube root of the site-level percentage of sediment classified as fine sand (0.053 to 0.25 millimeters).,numeric,column_header,-9999,-9999
+cube_Percent_Clay,cube root of percent,Cube root of the site-level percentage of sediment classified as clay.,numeric,column_header,-9999,-9999
+cube_Mean_Specific_Surface_Area_m2_per_g,cube root of meters squared per gram dry sediment,Cube root of mean sediment specific surface area for the site.,numeric,column_header,-9999,-9999
+cube_Median_SpC_microsiemens_per_cm,cube root of microsiemens per centimeter,Cube root of the median post-incubation specific conductance across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_Median_pH,N/A,Cube root of the median post-incubation pH across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_Median_Temperature_degC,cube root of degrees Celsius,Cube root of the median post-incubation temperature across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_Median_ATP_picomoles_per_g,cube root of picomoles adenosine triphosphate per gram dry sediment,Cube root of the median post-incubation sediment ATP concentration across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_Median_Fe_mg_per_kg,cube root of milligrams iron per kilogram dry sediment,Cube root of the median post-incubation sediment Fe(II) concentration across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_Median_X01395_C_percent_per_mg,cube root of percent,Cube root of the median post-incubation sediment total organic carbon percentage across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_Median_X01397_N_percent_per_mg,cube root of percent,Cube root of the median post-incubation sediment total nitrogen percentage across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_Median_Extractable_NPOC_mg_per_kg,cube root of milligrams carbon per kilogram dry sediment,Cube root of the median post-incubation extractable non-purgeable organic carbon concentration across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_Median_Extractable_TN_mg_per_kg,cube root of milligrams nitrogen per kilogram dry sediment,Cube root of the median post-incubation extractable total dissolved nitrogen concentration across wet and dry treatment replicates.,numeric,column_header,-9999,-9999
+cube_median_Dry_Initial_Gravimetric,cube root of grams water per gram dry sediment,Cube root of the median initial gravimetric moisture content among dry-treatment replicates.,numeric,column_header,-9999,-9999
+cube_median_Dry_Final_Gravimetric,cube root of grams water per gram dry sediment,Cube root of the median final gravimetric moisture content among dry-treatment replicates after the 21-day manipulation.,numeric,column_header,-9999,-9999

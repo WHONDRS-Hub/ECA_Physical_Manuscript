@@ -3,12 +3,10 @@ library(tidyverse)
 library(dplyr) # For reorganization
 library(stringr) # For string manipulation
 # ==== Defining paths and working directories ======
-github = 'C:/Users/gara009/OneDrive - PNNL/Documents/GitHub/Geospatial_variables/'
+github <- "https://raw.githubusercontent.com/river-corridors-sfa/Geospatial_variables/main/"
 # ====== Read in data ======
-comids =  read.csv("C:/Users/gara009/OneDrive - PNNL/Documents/GitHub/Geospatial_variables/Example_Code/v4_RCSFA_Geospatial_Data_Package/v4_RCSFA_Geospatial_Site_Information.csv")%>%
-dplyr::select(site = Site_ID, comid = COMID)
 
-sample_data = read_csv(paste0('EC_Data_Package/EC_Field_Metadata.csv'),comment = '#', na = c('N/A', -9999)) %>%
+sample_data = read_csv(paste0('Data/EC_Field_Metadata.csv'),comment = '#', na = c('N/A', -9999)) %>%
  dplyr::select(-CM_Parent_ID,-IGSN_Sample_Name,-IGSN,-Sample_Date,-Sample_Latitude,
                -Sample_Longitude, -miniDOT_Date, -miniDOT_Latitude, -miniDOT_Longitude,
                -miniDOT_Start_Time, -miniDOT_End_Time, -Time_Zone, -miniDOT_SN,
@@ -30,4 +28,4 @@ geospatial = read.csv(paste0(github,'Archived_versions/v4_RCSFA_Extracted_Geospa
 data_merged = sample_data %>%
   left_join(geospatial, by='site')
 # ==== Save data ====
-write.csv(data_merged, 'data/EC_Field_metadata_and_Geospatial.csv', row.names = FALSE)
+write.csv(data_merged, 'Data/EC_Field_metadata_and_Geospatial.csv', row.names = FALSE)

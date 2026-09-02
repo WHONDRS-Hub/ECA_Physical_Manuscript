@@ -1,0 +1,50 @@
+File_Name,File_Description,Standard,Header_Rows,Column_or_Row_Name_Position,File_Path
+Garayburu-Caruso_2026_ECA_Physical_dd.csv,Data dictionary defining column headers across the CSV data files included in this package.,ESS-DIVE FLMD v1; ESS-DIVE CSV v1,1,1,
+Garayburu-Caruso_2026_ECA_Physical_flmd.csv,File-level metadata describing the files included in this package.,ESS-DIVE FLMD v1; ESS-DIVE CSV v1,1,1,
+readme.txt,Instructions and citations for downloading the three source ESS-DIVE data packages required by the analysis scripts.,N/A,-9999,-9999,/Data
+D50_Calculations.csv,Derived site-level median sediment particle diameter (D50) values used in manuscript analyses.,ESS-DIVE CSV v1,1,1,/Data
+EC_Field_metadata_and_Geospatial.csv,"Merged field observations and site-level watershed, climate, topographic, and land-cover variables for the primary CONUS sampling locations.",ESS-DIVE CSV v1,1,1,/Data
+all_cube_variables_used_in_Lasso.csv,Site-level signed cube-root-transformed response and predictor variables used in the LASSO and random-forest analyses.,ESS-DIVE CSV v1,1,1,/Data
+Bootstrap_Stability_Cube_Root.csv,Bootstrap selection frequencies and proportions for cube-root-transformed predictors in the random-forest analysis.,ESS-DIVE CSV v1,1,1,/Data/RF_results
+Clustering_Details_Cube_Root.csv,"Spearman-correlation cluster assignments, individual predictor-response correlations, and representative-feature selection for cube-root-transformed predictors.",ESS-DIVE CSV v1,1,1,/Data/RF_results
+Complete_Analysis_Cube_Root.csv,"Combined cube-root random-forest results including correlation, permutation importance, bootstrap stability, and SHAP summaries.",ESS-DIVE CSV v1,1,1,/Data/RF_results
+Cross_Validation_Cube_Root.csv,Fold-level cross-validation R2 and RMSE for full and selected-predictor random-forest models using cube-root-transformed data.,ESS-DIVE CSV v1,1,1,/Data/RF_results
+Permutation_Importance_Cube_Root.csv,"Mean, standard deviation, and coefficient of variation of permutation importance for cube-root random-forest predictors.",ESS-DIVE CSV v1,1,1,/Data/RF_results
+SHAP_Analysis_Cube_Root.csv,"Mean absolute, mean, median, and standard deviation summaries of SHAP values for cube-root random-forest predictors.",ESS-DIVE CSV v1,1,1,/Data/RF_results
+rf_directionality_shap_pd.csv,File containing SHAP directionality summaries for random-forest models of median ATP and percent fine sand.,N/A,-9999,-9999,/Data/RF_ATP_fine_sand_04-26-26
+Featured_Image.jpg,Featured conceptual image associated with the manuscript.,N/A,-9999,-9999,/Figures
+FigureS3_effect_size.*,Supplementary Figure S3 showing absolute versus relative oxygen-consumption effect size; provided in PDF and PNG formats.,N/A,-9999,-9999,/Figures
+FigureS4_EC_Ecoregion_EffectSize_Map.pdf,Supplementary Figure S4 map showing the primary 50-site subset and oxygen-consumption effect sizes by ecoregion.,N/A,-9999,-9999,/Figures
+Figure_1_Ecoregion_EffectSize_Map.png,"Manuscript Figure 1 map of sampling locations, ecoregions, and oxygen-consumption effect size.",N/A,-9999,-9999,/Figures
+Figure_2_Combined_Cube_Histograms_range.*,Manuscript Figure 2 distributions of cube-root-transformed wet and dry oxygen-consumption rates and site-level effect sizes; provided in PDF and PNG formats.,N/A,-9999,-9999,/Figures
+Figure_3.png,Manuscript Figure 3 showing LASSO-selected predictors and relationships of fine sand and ATP with oxygen-consumption effect size.,N/A,-9999,-9999,/Figures
+Figure_4_v2.*,Manuscript Figure 4 showing the nonlinear relationship between median sediment particle diameter and oxygen-consumption effect size; provided in PDF and PNG formats.,N/A,-9999,-9999,/Figures
+Figure_5_v2.png,Manuscript Figure 5 conceptual model reconciling hot and cold moments under alternative reference states.,N/A,-9999,-9999,/Figures
+Figure_S13_RSq_vs_Rate_mg_per_kg.png,Supplementary figure showing oxygen-consumption rate-estimate R2 values relative to mass-normalized rates.,N/A,-9999,-9999,/Figures
+Figure_S14_SI_rCV_vs_Rate_mg_per_kg.png,Supplementary figure showing robust coefficient of variation relative to mass-normalized oxygen-consumption rates.,N/A,-9999,-9999,/Figures
+Figure_S1_Combined_SI_Histograms.*,Supplementary Figure S1 showing untransformed wet and dry oxygen-consumption rate distributions and effect-size distributions; provided in PDF and PNG formats.,N/A,-9999,-9999,/Figures
+Figure_S2_TwoPanel_Scatter_Untransformed_vs_CubeRates_EffectColor_Fig1Colors_0yellow_10blue.*,Supplementary Figure S2 comparing untransformed and cube-root-transformed oxygen-consumption rates with points colored by effect size; provided in PDF and PNG formats.,N/A,-9999,-9999,/Figures
+Figure_S5_Untransformed_Scatter_Plots_SI.png,Supplementary Figure S5 showing untransformed bivariate relationships between oxygen-consumption effect size and candidate explanatory variables.,N/A,-9999,-9999,/Figures
+Figure_S6_Publication.*,"Supplementary Figure S6 summarizing random-forest predictor clustering, permutation importance, and SHAP results; provided in PDF and PNG formats.",N/A,-9999,-9999,/Figures
+Figure_S7_Fig_ATP_Fine_Sand.png,"Supplementary Figure S7 showing the relationship between oxygen-consumption effect size and the leading LASSO predictors, ATP and percent fine sand.",N/A,-9999,-9999,/Figures
+Figure_S8_rf_3panel_stability_shap.*,Supplementary Figure S8 showing random-forest bootstrap importance stability and SHAP directionality for median ATP and percent fine sand; provided in PDF and PNG formats.,N/A,-9999,-9999,/Figures
+Figures_S9-S12_Page_*.png,"Four page images containing Supplementary Figures S9-S12, which document sensitivity analyses for oxygen-curve cleaning and slope estimation.",N/A,-9999,-9999,/Figures
+EC_EV_Ecoregion_EffectSize_Cubed_Map.pdf,Map product showing combined EC and EV sampling locations with cube-root-transformed oxygen-consumption effect sizes.,N/A,-9999,-9999,/Figures/Map
+EC_EV_Ecoregion_EffectSize_Map.pdf,Map product showing combined EC and EV sampling locations with untransformed oxygen-consumption effect sizes.,N/A,-9999,-9999,/Figures/Map
+EC_Ecoregion_EffectSize_Map.pdf,Map product showing EC primary-dataset sampling locations and oxygen-consumption effect sizes.,N/A,-9999,-9999,/Figures/Map
+EC_EV_Ecoregions.csv,Lookup table assigning EC and EV parent sample identifiers to MONet ecoregion codes and names.,ESS-DIVE CSV v1,1,1,/Figures/Map
+Ecoregion_EffectSize_Map.qgz,QGIS project used to assemble ecoregion and oxygen-consumption effect-size maps.,QGIS project format,-9999,-9999,/Figures/Map
+HUC2_CONUS_Only.*,ESRI Shapefile bundle and associated metadata for hydrologic unit code level-2 boundaries clipped to the contiguous United States.,ESRI Shapefile,-9999,-9999,/Figures/Map/HUC2_CONUS_Only
+NEON_Ecoregions_CONUS.*,ESRI Shapefile bundle for NEON ecoregion boundaries in the contiguous United States.,ESRI Shapefile,-9999,-9999,/Figures/Map/NEON_Ecoregoins_CONUS
+cb_2018_us_state_20m.*,"U.S. Census Bureau 2018 cartographic boundary shapefile bundle for U.S. states at 1:20,000,000 scale, with associated metadata.",ESRI Shapefile,-9999,-9999,/Figures/Map/cb_2018_us_state_20m
+_readme.txt,"Provenance notes and source URLs for hydrologic, ecoregion, NEON, and U.S. state boundary geospatial layers used in map production.",N/A,-9999,-9999,/Figures/Map
+create_map_input.R,R script that merges EC and EV metadata with oxygen-consumption effect sizes to prepare the input table for manuscript maps.,N/A,-9999,-9999,/Figures/Map
+D50.R,R script that calculates site-level median sediment particle diameter (D50) from grain-size data and writes D50_Calculations.csv.,N/A,-9999,-9999,/Scripts
+Effect_size_histograms.R,"R script that combines EC and EV oxygen-consumption data, calculates transformed rates and effect sizes, and generates main and supplementary distribution figures.",N/A,-9999,-9999,/Scripts
+FigureS3.R,R script that combines EC and EV summary data to generate the absolute-versus-relative effect-size supplementary figure.,N/A,-9999,-9999,/Scripts
+Figure_2_ranges.R,R script that prepares wet and dry oxygen-consumption rates and effect sizes and generates manuscript Figure 2.,N/A,-9999,-9999,/Scripts
+Figure_S5_RF_ATP_finesand_publication.R,R script for random-forest analyses linking larger-scale environmental predictors to median ATP and percent fine sand and for generating associated outputs.,N/A,-9999,-9999,/Scripts
+LASSO_Medians.R,"R script that merges laboratory and grain-size data, calculates site medians and effect sizes, performs LASSO regression, and generates manuscript and supplementary figures.",N/A,-9999,-9999,/Scripts
+RF_Spearman_Permutation_Bootstrap_CrossValidatio_SHAP_cuberoot_raw_data.R,"R script that performs correlation clustering, random-forest permutation importance, cross-validation, bootstrap stability, and SHAP analyses for raw and cube-root-transformed data.",N/A,-9999,-9999,/Scripts
+RF_for_ATP_and_pct_fine_sand_only_possitive_permutation.R,R script that fits and evaluates random-forest models for median ATP and percent fine sand using larger-scale environmental predictors with positive permutation importance.,N/A,-9999,-9999,/Scripts
+getLargeScaleData.R,"R script that joins field metadata with watershed, climate, topographic, and land-cover variables to create the geospatial analysis table.",N/A,-9999,-9999,/Scripts
